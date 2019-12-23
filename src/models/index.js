@@ -11,8 +11,9 @@ const sequelize = new Sequelize(
 );
 
 const models = {
-  Company: sequelize.import('./company'),
-  Jurisdiction: sequelize.import('./jurisdiction'),
+  Company: sequelize.import('./Company'),
+  Jurisdiction: sequelize.import('./Jurisdiction'),
+  CompanyJurisdiction: sequelize.import('./CompanyJurisdiction'),
 };
 
 Object.keys(models).forEach(key => {

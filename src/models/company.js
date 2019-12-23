@@ -3,7 +3,7 @@ const company = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
     },
-    yearEnd: {
+    year_end: {
       type: DataTypes.DATEONLY,
     },
   });
