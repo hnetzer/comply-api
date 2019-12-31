@@ -1,6 +1,12 @@
 import models from './models';
 
-const { Jurisdiction, Company, CompanyJurisdiction } = models;
+const {
+  Jurisdiction,
+  Company,
+  CompanyJurisdiction,
+  Agency,
+  Filing
+} = models;
 
 const seedJurisdictions = async () => {
   await Jurisdiction.bulkCreate([
@@ -62,9 +68,77 @@ const seedCompanyJurisdictions = async () => {
   await createCompanyJurisdiction('Company C', 'New York City', '2019-05-01')
 }
 
+const createAgency = async (name, jurisdictionName) => {
+  const jurisdiction = await Jurisdiction.findOne({ where: { name: jurisdictionName }, raw: true })
+
+  await Agency.create({
+    name: name,
+    jurisdiction_id: jurisdiction.id
+  })
+}
+
+const seedAgencies = async () => {
+  await createAgency('internal revenue service', 'Federal')
+  await createAgency('secretary of state', 'Delaware')
+  await createAgency('franchise tax board', 'California')
+  await createAgency('internal revenue service', 'California')
+  await createAgency('assessor', 'San Francisco County')
+  await createAgency('tax and treasurer', 'San Francisco')
+  await createAgency('assessor', 'Los Angeles County')
+  await createAgency('office of finance', 'Los Angeles')
+  await createAgency('secretary of state', 'New York')
+  await createAgency('department of finance', 'New York City')
+  await createAgency('department of taxation and finance', 'New York')
+}
+
+const createFiling = async (f, agencyName, jurisdictionName) => {
+  const jurisdiction = await Jurisdiction.findOne({ where: { name: jurisdictionName }, raw: true })
+  const agency = await Agency.findOne({ where: { name: agencyName, jurisdiction_id: jurisdiction.id }, raw: true })
+
+  await Filing.create({
+    name: f.name,
+    agency_id: agency.id,
+    due_date: f.dueDate,
+    due_date_year_end_offset_months: f.dueDateYearEndOffsetMonths,
+    due_date_reg_offset_months: f.dueDateRegOffestMonths
+  })
+}
+
+const seedFilings = async () => {
+  await createFiling({
+    name: 'form 1120',
+    dueDate: null,
+    dueDateYearEndOffsetMonths: 3.5,
+    dueDateRegOffestMonths: null
+  }, 'internal revenue service', 'Federal')
+
+  await createFiling({
+    name: 'form 1099',
+    dueDate: '2020-01-31',
+    dueDateYearEndOffsetMonths: null,
+    dueDateRegOffestMonths: null,
+  }, 'internal revenue service', 'Federal')
+
+  await createFiling({
+    name: 'form 3921',
+    dueDate: '2020-01-31',
+    dueDateYearEndOffsetMonths: null,
+    dueDateRegOffestMonths: null,
+  }, 'internal revenue service', 'Federal')
+
+  await createFiling({
+    name: 'form 3921',
+    dueDate: '2020-01-31',
+    dueDateYearEndOffsetMonths: 3.5,
+    dueDateRegOffestMonths: null,
+  }, 'internal revenue service', 'Federal')
+
+}
 
 export {
   seedJurisdictions,
   seedCompanies,
-  seedCompanyJurisdictions
+  seedCompanyJurisdictions,
+  seedAgencies,
+  seedFilings
 }
