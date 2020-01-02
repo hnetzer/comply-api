@@ -337,10 +337,33 @@ const seedFilings = async () => {
   }, 'department of taxation and finance', 'New York')
 }
 
+const countSeeds = () => {
+  Jurisdiction.count().then(c => {
+    console.log("There are " + c + " jurisdictions!")
+  })
+  Company.count().then(c => {
+    console.log("There are " + c + " companies!")
+  })
+  CompanyJurisdiction.count().then(c => {
+    console.log("There are " + c + " companies jurisdictions!")
+  })
+  Agency.count().then(c => {
+    console.log("There are " + c + " agencies!")
+  })
+  Filing.count().then(c => {
+    console.log("There are " + c + " filings!")
+  })
+}
+
+const seedData = async () => {
+  await seedJurisdictions();
+  await seedCompanies();
+  await seedCompanyJurisdictions();
+  await seedAgencies();
+  await seedFilings();
+}
+
 export {
-  seedJurisdictions,
-  seedCompanies,
-  seedCompanyJurisdictions,
-  seedAgencies,
-  seedFilings
+  seedData,
+  countSeeds,
 }

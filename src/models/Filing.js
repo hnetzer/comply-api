@@ -12,7 +12,7 @@ const filing = (sequelize, DataTypes) => {
     due_date_year_end_offset_months: {
       type: DataTypes.FLOAT,
     },
-    due__date_reg_offset_months: {
+    due_date_reg_offset_months: {
       type: DataTypes.FLOAT
     }
   });

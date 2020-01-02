@@ -1,76 +1,71 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import moment from 'moment';
 import models, { sequelize } from './models';
-import {
-  seedJurisdictions,
-  seedCompanies,
-  seedCompanyJurisdictions,
-  seedAgencies,
-  seedFilings
-} from './seeds'
+import { seedData, countSeeds } from './seeds'
 
 const eraseDatabaseOnSync = true;
+const {
+  Jurisdiction,
+  Company,
+  CompanyJurisdiction,
+  Agency,
+  Filing
+} = models;
 
 console.log('Hello Comply!');
-console.log('Starting up application...')
-
-const { Jurisdiction, Company, CompanyJurisdiction, Agency, Filing } = models;
-
-const countSeeds = () => {
-  Jurisdiction.count().then(c => {
-    console.log("There are " + c + " jurisdictions!")
-  })
-  Company.count().then(c => {
-    console.log("There are " + c + " companies!")
-  })
-  CompanyJurisdiction.count().then(c => {
-    console.log("There are " + c + " companies jurisdictions!")
-  })
-  Agency.count().then(c => {
-    console.log("There are " + c + " agencies!")
-  })
-  Filing.count().then(c => {
-    console.log("There are " + c + " filings!")
-  })
-}
-
-sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
-  if (eraseDatabaseOnSync) {
-    await seedJurisdictions();
-    await seedCompanies();
-    await seedCompanyJurisdictions();
-    await seedAgencies();
-    await seedFilings();
-    countSeeds();
-  }
-});
 
 const app = express();
-
 app.use(cors());
 app.get('/filings', async (req, res) => {
   const companyId = 2;
   const company = await Company.findOne({ where: { id: companyId } });
 
-  // Jurisdictions
   const jurisdictions = await company.getJurisdictions({ raw: true })
     .map(j => ({ name: j.name, id: j.id, reg: j['company_jurisdiction.registration'] }));
-  console.log(jurisdictions)
 
-  // Agencies
+  const cjMap = jurisdictions.reduce((map, j) => {
+    map[j.id] = { name: j.name, reg: j.reg }
+    return map;
+  }, {});
+
   const agencies = await Agency.findAllForJurisdictionIds({ ids: jurisdictions.map(j => j.id) })
-  console.log(agencies)
+  const filings = await Filing.findAllForAgencyIds({ ids: agencies.map(a => a.id), companyId: company.id })
 
-  // Filings
-  const filings = await Filing.findAllForAgencyIds({ ids: agencies.map(a => a.id) })
-  filings.forEach(f => console.log(f.get({ plain: true })))
-  //console.log(filings)
+  const f = filings.map(f => {
+    const filing = f.get({ plain: true })
 
+    filing.due = filing.due_date
+    
+    if (filing.due_date_year_end_offset_months) {
+      const offset = filing.due_date_year_end_offset_months;
+      const yearEnd = moment(company.year_end);
+      yearEnd.add(offset, 'months');
+      filing.due = yearEnd.format('2020-MM-DD')
+    }
 
-  res.send('Hello World!');
+    if (filing.due_date_reg_offset_months) {
+      const offset = filing.due_date_reg_offset_months;
+      const reg = moment(cjMap[filing.agency.jurisdiction.id].reg)
+      reg.add(offset, 'months');
+      filing.due = reg.format('2020-MM-DD')
+    }
+
+    return filing
+  })
+
+  res.json(f);
 });
 
-app.listen(process.env.PORT, () =>
-  console.log(`Example app listening on port ${process.env.PORT}!`),
-);
+
+sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
+  if (eraseDatabaseOnSync) {
+    await seedData();
+    countSeeds();
+  }
+
+  app.listen(process.env.PORT, () =>
+    console.log(`Example app listening on port ${process.env.PORT}!`),
+  );
+});
