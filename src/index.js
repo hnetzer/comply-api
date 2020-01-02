@@ -52,9 +52,22 @@ app.use(cors());
 app.get('/filings', async (req, res) => {
   const companyId = 2;
   const company = await Company.findOne({ where: { id: companyId } });
-  const jurisdictions = await company.getJurisdictions({ raw: true }).map(j => j.name);
 
+  // Jurisdictions
+  const jurisdictions = await company.getJurisdictions({ raw: true })
+    .map(j => ({ name: j.name, id: j.id, reg: j['company_jurisdiction.registration'] }));
   console.log(jurisdictions)
+
+  // Agencies
+  const agencies = await Agency.findAllForJurisdictionIds({ ids: jurisdictions.map(j => j.id) })
+  console.log(agencies)
+
+  // Filings
+  const filings = await Filing.findAllForAgencyIds({ ids: agencies.map(a => a.id) })
+  filings.forEach(f => console.log(f.get({ plain: true })))
+  //console.log(filings)
+
+
   res.send('Hello World!');
 });
 
