@@ -49,7 +49,12 @@ sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
 const app = express();
 
 app.use(cors());
-app.get('/', (req, res) => {
+app.get('/filings', async (req, res) => {
+  const companyId = 2;
+  const company = await Company.findOne({ where: { id: companyId } });
+  const jurisdictions = await company.getJurisdictions({ raw: true }).map(j => j.name);
+
+  console.log(jurisdictions)
   res.send('Hello World!');
 });
 

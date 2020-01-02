@@ -6,8 +6,6 @@ const companyJurisdiction = (sequelize, DataTypes) => {
   });
 
   CompanyJurisdiction.associate = models => {
-    CompanyJurisdiction.belongsTo(models.Company, {foreignKey: 'company_id'});
-    CompanyJurisdiction.belongsTo(models.Jurisdiction, {foreignKey: 'jurisdiction_id'});
   };
 
   return CompanyJurisdiction;

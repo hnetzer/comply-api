@@ -9,6 +9,7 @@ const company = (sequelize, DataTypes) => {
   });
 
   Company.associate = models => {
+    Company.belongsToMany(models.Jurisdiction, { through: models.CompanyJurisdiction })
   };
 
   return Company;

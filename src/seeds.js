@@ -37,8 +37,8 @@ const createCompanyJurisdiction = async (companyName, jurisdictionName, reg) => 
   const jurisdiction = await Jurisdiction.findOne({ where: { name: jurisdictionName }, raw: true })
 
   await CompanyJurisdiction.create({
-    company_id: company.id,
-    jurisdiction_id: jurisdiction.id,
+    companyId: company.id,
+    jurisdictionId: jurisdiction.id,
     registration: reg
   })
 }
