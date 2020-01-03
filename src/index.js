@@ -63,6 +63,12 @@ app.get('/filings', async (req, res) => {
   });
 });
 
+app.get('/status', async (req, res) => {
+  res.json({
+    status: "we good",
+  });
+});
+
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
   if (eraseDatabaseOnSync) {

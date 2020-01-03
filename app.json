@@ -1,0 +1,13 @@
+{
+  "name": "comply-api",
+  "env": {
+    "PORT": {
+      "required": false
+    },
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
