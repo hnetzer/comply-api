@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import models from '../models';
 
 const agency = (sequelize, DataTypes) => {
   const Agency = sequelize.define('agency', {
@@ -12,7 +13,12 @@ const agency = (sequelize, DataTypes) => {
   };
 
   Agency.findAllForJurisdictionIds = ({ ids }) => {
-    return Agency.findAll({ where: { jurisdiction_id: { [Op.in]: ids } }, raw: true })
+    return Agency.findAll({
+      where: { jurisdiction_id: { [Op.in]: ids } },
+      include: [{
+        model: models.Jurisdiction,
+      }],
+    })
   }
 
   return Agency;

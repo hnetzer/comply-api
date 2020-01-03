@@ -19,7 +19,7 @@ console.log('Hello Comply!');
 const app = express();
 app.use(cors());
 app.get('/filings', async (req, res) => {
-  const companyId = 2;
+  const companyId = req.query.companyId;
   const company = await Company.findOne({ where: { id: companyId } });
 
   const jurisdictions = await company.getJurisdictions({ raw: true })
@@ -37,7 +37,7 @@ app.get('/filings', async (req, res) => {
     const filing = f.get({ plain: true })
 
     filing.due = filing.due_date
-    
+
     if (filing.due_date_year_end_offset_months) {
       const offset = filing.due_date_year_end_offset_months;
       const yearEnd = moment(company.year_end);
@@ -55,7 +55,12 @@ app.get('/filings', async (req, res) => {
     return filing
   })
 
-  res.json(f);
+  res.json({
+    filings: f,
+    agencies: agencies,
+    jurisdictions: jurisdictions,
+    company: company
+  });
 });
 
 
