@@ -6,14 +6,14 @@ let sequelize = null
 console.log("Attempting to connect to the database")
 if (process.env.DATABASE_URL) {
   // the application is executed on Heroku ... use the postgres database
-  console.log("Looking for a Heroku connection...")
+  console.log("Heroku connection:")
   console.log(process.env.DATABASE_URL)
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect:  'postgres',
-    protocol: 'postgres'
+    logging: false,
   })
 } else {
-  console.log("Looking for a local connection....")
+  console.log("Local connection:")
   sequelize = new Sequelize(
     process.env.DATABASE,
     process.env.DATABASE_USER,
@@ -24,9 +24,6 @@ if (process.env.DATABASE_URL) {
     },
   );
 }
-
-console.log(sequelize)
-
 
 const models = {
   Company: sequelize.import('./Company'),
