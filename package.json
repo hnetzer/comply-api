@@ -1,26 +1,33 @@
 {
   "name": "comply-demo",
   "version": "1.0.0",
-  "description": "",
+  "description": "api for comply demo",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run prod",
+    "dev": "NODE_ENV=development nodemon --exec babel-node src/index.js NODE_ENV=development",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf dist",
+    "build": "babel ./src --out-dir build",
+    "prod": "NODE_ENV=production npm run clean && npm run build && node build/index.js"
   },
   "author": "Henry Netzer",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.7.7",
     "@babel/core": "^7.7.7",
     "@babel/node": "^7.7.7",
     "@babel/preset-env": "^7.7.7",
     "nodemon": "^2.0.2"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.7.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "moment": "^2.24.0",
     "pg": "^7.15.1",
+    "rimraf": "^3.0.0",
     "sequelize": "^5.21.3"
   },
   "engines": {

@@ -4,6 +4,9 @@
     "PORT": {
       "required": false
     },
+    "NODE_ENV": {
+      "required": false
+    }
   },
   "buildpacks": [
     {
