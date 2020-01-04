@@ -1,14 +1,27 @@
 import Sequelize from 'sequelize';
 
-const sequelize = new Sequelize(
-  process.env.DATABASE,
-  process.env.DATABASE_USER,
-  process.env.DATABASE_PASSWORD,
-  {
-    dialect: 'postgres',
-    logging: false,
-  },
-);
+let sequelize = null
+
+// checks if env is Heroku, if so, sets sequelize to utilize the database hosted on heroku
+if (process.env.DATABASE_URL) {
+  // the application is executed on Heroku ... use the postgres database
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect:  'postgres',
+    protocol: 'postgres'
+  })
+} else {
+  sequelize = new Sequelize(
+    process.env.DATABASE,
+    process.env.DATABASE_USER,
+    process.env.DATABASE_PASSWORD,
+    {
+      dialect: 'postgres',
+      logging: false,
+    },
+  );
+}
+
+
 
 const models = {
   Company: sequelize.import('./Company'),
