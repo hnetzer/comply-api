@@ -25,6 +25,7 @@ if (process.env.DATABASE_URL) {
   );
 }
 
+console.log(sequelize)
 
 
 const models = {
@@ -41,5 +42,6 @@ Object.keys(models).forEach(key => {
   }
 });
 
+console.log('At the end of the database connection...')
 export { sequelize };
 export default models;
