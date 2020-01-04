@@ -4,12 +4,10 @@
   "description": "api for comply demo",
   "main": "index.js",
   "scripts": {
-    "start": "npm run prod",
-    "dev": "NODE_ENV=development nodemon --exec babel-node src/index.js NODE_ENV=development",
+    "start": "nodemon --exec babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf dist",
-    "build": "babel ./src --out-dir build",
-    "prod": "NODE_ENV=production npm run clean && npm run build && node build/index.js"
+    "build": "babel ./src --out-dir build"
   },
   "author": "Henry Netzer",
   "license": "ISC",
