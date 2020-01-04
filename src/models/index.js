@@ -3,13 +3,17 @@ import Sequelize from 'sequelize';
 let sequelize = null
 
 // checks if env is Heroku, if so, sets sequelize to utilize the database hosted on heroku
+console.log("Attempting to connect to the database")
 if (process.env.DATABASE_URL) {
   // the application is executed on Heroku ... use the postgres database
+  console.log("Looking for a Heroku connection...")
+  console.log(process.env.DATABASE_URL)
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect:  'postgres',
     protocol: 'postgres'
   })
 } else {
+  console.log("Looking for a local connection....")
   sequelize = new Sequelize(
     process.env.DATABASE,
     process.env.DATABASE_USER,
