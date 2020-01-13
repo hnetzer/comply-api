@@ -1,75 +1,33 @@
 import 'dotenv/config';
 import "@babel/polyfill";
 import express from 'express';
+import bodyParser from 'body-parser'
 import cors from 'cors';
-import moment from 'moment';
 import models, { sequelize } from './models';
-import { seedData, countSeeds } from './seeds'
+import { seedData, countSeeds } from './seeds';
+
+// Controllers
+import { getFilings } from './controllers/filingController'
+import { createAccount } from './controllers/accountController'
 
 const eraseDatabaseOnSync = true;
-const {
-  Jurisdiction,
-  Company,
-  CompanyJurisdiction,
-  Agency,
-  Filing
-} = models;
 
 console.log('Hello Comply!');
 
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
 app.use(cors());
-app.get('/filings', async (req, res) => {
-  const companyId = req.query.companyId;
-  const company = await Company.findOne({ where: { id: companyId } });
 
-  const jurisdictions = await company.getJurisdictions({ raw: true })
-    .map(j => ({ name: j.name, id: j.id, reg: j['company_jurisdiction.registration'] }));
-
-  const cjMap = jurisdictions.reduce((map, j) => {
-    map[j.id] = { name: j.name, reg: j.reg }
-    return map;
-  }, {});
-
-  const agencies = await Agency.findAllForJurisdictionIds({ ids: jurisdictions.map(j => j.id) })
-  const filings = await Filing.findAllForAgencyIds({ ids: agencies.map(a => a.id), companyId: company.id })
-
-  const f = filings.map(f => {
-    const filing = f.get({ plain: true })
-
-    filing.due = filing.due_date
-
-    if (filing.due_date_year_end_offset_months) {
-      const offset = filing.due_date_year_end_offset_months;
-      const yearEnd = moment(company.year_end);
-      yearEnd.add(offset, 'months');
-      filing.due = yearEnd.format('2020-MM-DD')
-    }
-
-    if (filing.due_date_reg_offset_months) {
-      const offset = filing.due_date_reg_offset_months;
-      const reg = moment(cjMap[filing.agency.jurisdiction.id].reg)
-      reg.add(offset, 'months');
-      filing.due = reg.format('2020-MM-DD')
-    }
-
-    return filing
-  })
-
-  res.json({
-    filings: f,
-    agencies: agencies,
-    jurisdictions: jurisdictions,
-    company: company
-  });
-});
-
+// paths
+app.get('/filings', getFilings);
+app.post('/account', createAccount);
 app.get('/status', async (req, res) => {
   res.json({
     status: "we good",
   });
 });
-
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
   if (eraseDatabaseOnSync) {
