@@ -10,7 +10,7 @@ import { seedData, countSeeds } from './seeds';
 import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
 
-const eraseDatabaseOnSync = true;
+const eraseDatabaseOnSync = false;
 
 console.log('Hello Comply!');
 
