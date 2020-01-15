@@ -36,9 +36,6 @@ const createAccount = async (req, res, next) => {
 
   const newUser = await User.findOne({ where: { email: user.email }, raw: true })
 
-  // req.body.username = user.email
-  // req.body.password = user.password
-
   req.login(newUser, { session: false }, err => {
     if (err) {
       return res.send(err)
@@ -53,34 +50,6 @@ const createAccount = async (req, res, next) => {
     });
   })
 
-
-  /* passport.authenticate('local', { session: false }, async (err, user, info) => {
-
-    if (err || !user) {
-      return res.status(400).json({
-        message: 'An error occured',
-        user: user
-      });
-    }
-
-    console.log('user -->')
-    console.log(user)
-
-    err = req.login(user, { session: false }, err => {
-      if (err) {
-        return res.send(err)
-      }
-
-      console.log('inside passport authentication')
-      console.log('generating token')
-      // now generate a signed json web token with the user object
-      const token = jwt.sign({ username: 'henry@able.co', id: 5 }, 'your_jwt_secret')
-      return res.json({
-        user: user,
-        token: token
-      });
-    });
-  })(req, res, next);*/
 }
 
 export {
