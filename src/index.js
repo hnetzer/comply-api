@@ -1,8 +1,11 @@
 import 'dotenv/config';
 import "@babel/polyfill";
+import "./passport"
 import express from 'express';
 import bodyParser from 'body-parser'
 import cors from 'cors';
+import passport from 'passport';
+
 import models, { sequelize } from './models';
 import { seedData, countSeeds } from './seeds';
 
@@ -10,17 +13,17 @@ import { seedData, countSeeds } from './seeds';
 import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
 
-const eraseDatabaseOnSync = false;
+const eraseDatabaseOnSync = true;
 
-console.log('Hello Comply!');
-
+// Epress server
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
+app.use(passport.initialize());
 app.use(cors());
 
-// paths
+// Routes
 app.get('/filings', getFilings);
 app.post('/account', createAccount);
 app.get('/status', async (req, res) => {
@@ -28,6 +31,31 @@ app.get('/status', async (req, res) => {
     status: "we good",
   });
 });
+
+app.post('/login', async (req, res) => {
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).json({
+        message: 'An error occured',
+        user: user
+      });
+    }
+
+    req.login(user, { session: false }, err => {
+      if (err) {
+        res.send(err)
+      }
+
+      // now generate a signed json web token with the user object
+      const token = jwt.sign(user, 'your_jwt_secret')
+      return res.json({
+        user: user,
+        token: token
+      });
+    })(req, res);
+  });
+});
+
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
   if (eraseDatabaseOnSync) {

@@ -4,12 +4,13 @@ const user = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       required: true
     },
-    role: {
+    title: {
       type: DataTypes.STRING,
     },
     email: {
       type: DataTypes.STRING,
-      required: true
+      allowNull: false,
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
