@@ -1,11 +1,14 @@
 import passport from 'passport';
 const LocalStrategy = require('passport-local').Strategy;
+const PassportJWT = require('passport-jwt');
+const JWTStrategy = PassportJWT.Strategy;
+const ExtractJWT = PassportJWT.ExtractJwt;
 
 import models from './models';
 const { User } = models;
 
 // Setup Passport
-let strategy = new LocalStrategy(async (username, password, done) => {
+let localStrategy = new LocalStrategy(async (username, password, done) => {
   let user;
     try {
       user = await User.findOne({ where: { email: username }, raw: true })
@@ -24,4 +27,19 @@ let strategy = new LocalStrategy(async (username, password, done) => {
     return done(null, user);
 });
 
-passport.use(strategy);
+
+const settings = { jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(), secretOrKey: 'your_jwt_secret'}
+let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, cb) => {
+  console.log('inside the JWT strategy')
+  console.log(jwtPayload)
+  let user;
+  try {
+    user = await User.findOneById(jwtPayload.id)
+    return cb(null, user);
+  } catch (err) {
+    return cb(err);
+  }
+});
+
+passport.use(localStrategy);
+passport.use(jwtStrategy);

@@ -12,6 +12,7 @@ import { seedData, countSeeds } from './seeds';
 // Controllers
 import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
+import { updateCompany } from './controllers/companyController'
 
 const eraseDatabaseOnSync = true;
 
@@ -26,13 +27,11 @@ app.use(cors());
 // Routes
 app.get('/filings', getFilings);
 app.post('/account', createAccount);
-app.get('/status', async (req, res) => {
-  res.json({
-    status: "we good",
-  });
-});
+app.put('/company', passport.authenticate('jwt', { session: false }), )
+app.get('/status', (req, res) => res.json({ status: "we good" }));
 
-app.post('/login', async (req, res) => {
+
+/*app.post('/login', async (req, res) => {
   passport.authenticate('local', { session: false }, (err, user, info) => {
     if (err || !user) {
       return res.status(400).json({
@@ -54,7 +53,7 @@ app.post('/login', async (req, res) => {
       });
     })(req, res);
   });
-});
+});*/
 
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
