@@ -29,15 +29,16 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
 
 
 const settings = { jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(), secretOrKey: 'your_jwt_secret'}
-let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, cb) => {
-  console.log('inside the JWT strategy')
-  console.log(jwtPayload)
+let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
   let user;
   try {
-    user = await User.findOneById(jwtPayload.id)
-    return cb(null, user);
+    user = await User.findOne({ where: { id: jwtPayload.id }, raw: true });
+    console.log('found the user')
+    console.log(user)
+    // TODO: Do we need to check anything here?
+    return done(null, user);
   } catch (err) {
-    return cb(err);
+    return done(err);
   }
 });
 

@@ -14,7 +14,7 @@ import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
 import { updateCompany } from './controllers/companyController'
 
-const eraseDatabaseOnSync = true;
+const eraseDatabaseOnSync = false;
 
 // Epress server
 const app = express();
@@ -27,7 +27,7 @@ app.use(cors());
 // Routes
 app.get('/filings', getFilings);
 app.post('/account', createAccount);
-app.put('/company', passport.authenticate('jwt', { session: false }), )
+app.put('/company', passport.authenticate('jwt', { session: false }), updateCompany);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
 
 
@@ -58,8 +58,8 @@ app.get('/status', (req, res) => res.json({ status: "we good" }));
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
   if (eraseDatabaseOnSync) {
-    await seedData();
-    countSeeds();
+    // await seedData();
+    // countSeeds();
   }
 
   app.listen(process.env.PORT, () =>

@@ -9,6 +9,24 @@ const company = (sequelize, DataTypes) => {
     },
     phone: {
       type: DataTypes.STRING,
+    },
+    type: {
+      type: DataTypes.STRING,
+    },
+    tax_class: {
+      type: DataTypes.STRING,
+    },
+    year_end_month: {
+      type: DataTypes.INTEGER,
+    },
+    year_end_day: {
+      type: DataTypes.INTEGER,
+    },
+    formation_state: {
+      type: DataTypes.STRING,
+    },
+    formation_registration_date: {
+      type: DataTypes.DATEONLY,
     }
   });
 
