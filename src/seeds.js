@@ -25,9 +25,9 @@ const seedJurisdictions = async () => {
 // TODO: dates come from moment, use moment js
 const seedCompanies = async () => {
   await Company.bulkCreate([
-    { name: 'Company A', year_end: '2000-12-31' },
-    { name: 'Company B', year_end: '2000-06-30' },
-    { name: 'Company C', year_end: '2000-12-31' },
+    { name: 'Company A', year_end_month: 11, year_end_day: 31 },
+    { name: 'Company B', year_end_month: 5, year_end_day: 30 },
+    { name: 'Company C', year_end_month: 11, year_end_day: 31 },
   ])
 }
 

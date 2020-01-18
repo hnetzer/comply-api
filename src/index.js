@@ -14,7 +14,7 @@ import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
 import { updateCompany } from './controllers/companyController'
 
-const eraseDatabaseOnSync = false;
+const eraseDatabaseOnSync = true;
 
 // Epress server
 const app = express();
@@ -58,8 +58,8 @@ app.get('/status', (req, res) => res.json({ status: "we good" }));
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
   if (eraseDatabaseOnSync) {
-    // await seedData();
-    // countSeeds();
+    await seedData();
+    countSeeds();
   }
 
   app.listen(process.env.PORT, () =>

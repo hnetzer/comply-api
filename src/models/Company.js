@@ -4,9 +4,6 @@ const company = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       required: true
     },
-    year_end: {
-      type: DataTypes.DATEONLY,
-    },
     phone: {
       type: DataTypes.STRING,
     },
@@ -22,12 +19,6 @@ const company = (sequelize, DataTypes) => {
     year_end_day: {
       type: DataTypes.INTEGER,
     },
-    formation_state: {
-      type: DataTypes.STRING,
-    },
-    formation_registration_date: {
-      type: DataTypes.DATEONLY,
-    }
   });
 
   Company.associate = models => {

@@ -31,7 +31,7 @@ const getFilings = async (req, res) => {
 
     if (filing.due_date_year_end_offset_months) {
       const offset = filing.due_date_year_end_offset_months;
-      const yearEnd = moment(company.year_end);
+      const yearEnd = moment().year(2020).month(company.year_end_month).date(company.year_end_day);
       yearEnd.add(offset, 'months');
       filing.due = yearEnd.format('2020-MM-DD')
     }
