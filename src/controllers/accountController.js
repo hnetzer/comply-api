@@ -30,23 +30,26 @@ const createAccount = async (req, res, next) => {
     email: user.email,
     password: user.password,
     company_id: comp.id
-  }, {
-    returning: true
   })
 
-  const newUser = await User.findOne({ where: { email: user.email }, raw: true })
+  const newUser = await User.findOne({
+    where: { email: user.email },
+    include: {
+      model: Company,
+    },
+    raw: true })
 
   req.login(newUser, { session: false }, err => {
     if (err) {
       return res.send(err)
     }
-    console.log('inside passport authentication')
-    console.log('generating token')
+
     // now generate a signed json web token with the user object
     const token = jwt.sign(newUser, 'your_jwt_secret')
     return res.json({
       user: newUser,
-      token: token
+      token: token,
+      company: comp
     });
   })
 
