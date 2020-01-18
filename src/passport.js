@@ -33,8 +33,7 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
   let user;
   try {
     user = await User.findOne({ where: { id: jwtPayload.id }, raw: true });
-    console.log('found the user')
-    console.log(user)
+
     // TODO: Do we need to check anything here?
     return done(null, user);
   } catch (err) {

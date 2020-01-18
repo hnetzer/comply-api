@@ -14,7 +14,7 @@ import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
 import { updateCompany } from './controllers/companyController'
 
-const eraseDatabaseOnSync = true;
+const eraseDatabaseOnSync = false;
 
 // Epress server
 const app = express();
