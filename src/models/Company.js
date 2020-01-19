@@ -23,6 +23,7 @@ const company = (sequelize, DataTypes) => {
 
   Company.associate = models => {
     Company.belongsToMany(models.Jurisdiction, { through: models.CompanyJurisdiction })
+    Company.hasMany(models.Office, { foreignKey: 'company_id' })
   };
 
   return Company;

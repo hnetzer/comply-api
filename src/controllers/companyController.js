@@ -6,13 +6,13 @@ const {
   Company,
   CompanyJurisdiction,
   Jurisdiction,
-  User
+  User,
+  Office,
 } = models;
 
 
-// TODO: Re-factor this to take company_id as part of URL
 const updateCompany = async (req, res, next) => {
-  const companyId = req.user.company_id;
+  const companyId = req.params.companyId;
   const options = {
     where: { id: companyId }
   }
@@ -33,16 +33,33 @@ const updateCompany = async (req, res, next) => {
     await company.setJurisdictions([j], { through: { registration: jurisdiction.registration }})
   }
 
-  const c = await Company.findOne({
-    where: { id: req.user.company_id },
-    include: [{
-      model: Jurisdiction,
-    }],
-    raw: true });
-
+  const c = await Company.findOne({ where: { id: req.user.company_id }, raw: true });
   return res.status(200).json(c)
 }
 
+// TODO: Create the jurisdictions in the function to for the offices;
+const updateOffices = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  const offices = req.body.offices;
+  const company = await Company.findOne({ where: { id: companyId } });
+
+  // TODO: Delete all of the existing offices first
+  try {
+   await Office.bulkCreate(offices.map(office => {
+     office.company_id = companyId;
+     return office
+   }))
+ } catch(err) {
+   console.log('Error creating offices')
+   console.log(err)
+   return res.status(500).json({})
+ }
+
+  const o = await Office.findAll({ where: { company_id: companyId }, raw: true });
+  return res.status(200).json(o)
+}
+
 export {
-  updateCompany
+  updateCompany,
+  updateOffices
 }

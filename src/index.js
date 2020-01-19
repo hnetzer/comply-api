@@ -12,7 +12,7 @@ import { seedData, countSeeds } from './seeds';
 // Controllers
 import { getFilings } from './controllers/filingController'
 import { createAccount } from './controllers/accountController'
-import { updateCompany } from './controllers/companyController'
+import { updateCompany, updateOffices } from './controllers/companyController'
 
 const eraseDatabaseOnSync = false;
 
@@ -27,8 +27,15 @@ app.use(cors());
 // Routes
 app.get('/filings', getFilings);
 app.post('/account', createAccount);
-app.put('/company', passport.authenticate('jwt', { session: false }), updateCompany);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
+
+// Company Routes
+const companyRouter = express.Router();
+companyRouter.use(passport.authenticate('jwt', { session: false }));
+companyRouter.put('/:companyId', updateCompany);
+companyRouter.put('/:companyId/offices', updateOffices);
+
+app.use('/company', companyRouter);
 
 
 /*app.post('/login', async (req, res) => {
