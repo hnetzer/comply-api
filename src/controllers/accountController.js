@@ -7,10 +7,11 @@ const {
   User
 } = models;
 
+
+// TODO: Move JWT secret to ENV variable
 const createAccount = async (req, res, next) => {
 
   const { user, company } = req.body;
-
   const count = await User.count({ where: { email: user.email } });
   if (count > 0) {
     return res.status(400).json({
@@ -52,9 +53,29 @@ const createAccount = async (req, res, next) => {
       company: comp
     });
   })
+}
 
+// TODO: Move JWT secret to ENV variable
+const login = async (req, res, next) => {
+  const user = req.user
+  if (!user) {
+    return res.status(401).send();
+  }
+
+  req.login(user, { session: false }, err => {
+    if (err) {
+      res.status(500).send();
+    }
+
+    const token = jwt.sign(user, 'your_jwt_secret')
+    return res.json({
+      user: user,
+      token: token
+    });
+  });
 }
 
 export {
-  createAccount
+  createAccount,
+  login
 }

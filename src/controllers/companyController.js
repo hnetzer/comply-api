@@ -10,7 +10,7 @@ const {
   Office,
 } = models;
 
-
+  // TODO: make sure the user owns that company
 const updateCompany = async (req, res, next) => {
   const companyId = req.params.companyId;
   const options = {
@@ -38,6 +38,7 @@ const updateCompany = async (req, res, next) => {
 }
 
 // TODO: Create the jurisdictions in the function to for the offices;
+// TODO: Check if th user owns the company / offices
 const updateOffices = async (req, res, next) => {
   const companyId = req.params.companyId;
   const offices = req.body.offices;

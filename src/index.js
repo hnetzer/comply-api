@@ -11,7 +11,7 @@ import { seedData, countSeeds } from './seeds';
 
 // Controllers
 import { getFilings } from './controllers/filingController'
-import { createAccount } from './controllers/accountController'
+import { createAccount, login } from './controllers/accountController'
 import { updateCompany, updateOffices } from './controllers/companyController'
 
 const eraseDatabaseOnSync = false;
@@ -26,8 +26,10 @@ app.use(cors());
 
 // Routes
 app.get('/filings', getFilings);
-app.post('/account', createAccount);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
+
+app.post('/account', createAccount);
+app.post('/login', passport.authenticate('local', { session: false }), login);
 
 // Company Routes
 const companyRouter = express.Router();
@@ -38,29 +40,7 @@ companyRouter.put('/:companyId/offices', updateOffices);
 app.use('/company', companyRouter);
 
 
-/*app.post('/login', async (req, res) => {
-  passport.authenticate('local', { session: false }, (err, user, info) => {
-    if (err || !user) {
-      return res.status(400).json({
-        message: 'An error occured',
-        user: user
-      });
-    }
 
-    req.login(user, { session: false }, err => {
-      if (err) {
-        res.send(err)
-      }
-
-      // now generate a signed json web token with the user object
-      const token = jwt.sign(user, 'your_jwt_secret')
-      return res.json({
-        user: user,
-        token: token
-      });
-    })(req, res);
-  });
-});*/
 
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {

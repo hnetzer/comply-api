@@ -13,7 +13,7 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
     try {
       user = await User.findOne({ where: { email: username }, raw: true })
       if (!user) {
-        return done(null, false, {message: 'No user by that email'});
+        return done(null, false, { message: 'No user by that email'});
       }
     } catch (e) {
       return done(e);
