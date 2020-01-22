@@ -1,4 +1,6 @@
 import passport from 'passport';
+import bcrypt from 'bcrypt';
+
 const LocalStrategy = require('passport-local').Strategy;
 const PassportJWT = require('passport-jwt');
 const JWTStrategy = PassportJWT.Strategy;
@@ -11,7 +13,7 @@ const { User } = models;
 let localStrategy = new LocalStrategy(async (username, password, done) => {
   let user;
     try {
-      user = await User.findOne({ where: { email: username }, raw: true })
+      user = await User.findOne({ where: { email: username } })
       if (!user) {
         return done(null, false, { message: 'No user by that email'});
       }
@@ -19,12 +21,14 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
       return done(e);
     }
 
+
+    const match = await user.checkPassword(password);
     // TODO: update this to check hashed passwords
-    if (user.password != password) {
+    if (!match) {
       return done(null, false, { message: 'Incorrect password.' });
     }
 
-    return done(null, user);
+    return done(null, user.get({ plain: true }));
 });
 
 

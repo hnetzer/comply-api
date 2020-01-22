@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt';
+
 const user = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
     name: {
@@ -21,6 +23,20 @@ const user = (sequelize, DataTypes) => {
   User.associate = models => {
     User.belongsTo(models.Company, {foreignKey: 'company_id'});
   };
+
+  User.beforeCreate((user, options) => {
+    return bcrypt.hash(user.password, 10)
+      .then(hash => {
+        user.password = hash;
+      })
+      .catch(err => {
+        throw new Error();
+      });
+  });
+
+  User.prototype.checkPassword = function (password) {
+    return bcrypt.compare(password, this.password);
+  }
 
   return User;
 };
