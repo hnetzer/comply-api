@@ -7,14 +7,11 @@ import cors from 'cors';
 import passport from 'passport';
 
 import models, { sequelize } from './models';
-import { seedData, countSeeds } from './seeds';
 
 // Controllers
 import { getFilings } from './controllers/filingController'
 import { createAccount, login } from './controllers/accountController'
 import { updateCompany, updateOffices } from './controllers/companyController'
-
-const eraseDatabaseOnSync = false;
 
 // Epress server
 const app = express();
@@ -39,17 +36,6 @@ companyRouter.put('/:companyId/offices', updateOffices);
 
 app.use('/company', companyRouter);
 
-
-
-
-
-sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
-  if (eraseDatabaseOnSync) {
-    await seedData();
-    countSeeds();
-  }
-
-  app.listen(process.env.PORT, () =>
-    console.log(`Example app listening on port ${process.env.PORT}!`),
-  );
-});
+app.listen(process.env.PORT, () =>
+  console.log(`Example app listening on port ${process.env.PORT}!`),
+);

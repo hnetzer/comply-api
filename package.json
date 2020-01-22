@@ -7,7 +7,8 @@
     "start": "nodemon --exec babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf dist",
-    "build": "babel ./src --out-dir build"
+    "build": "babel ./src --out-dir build",
+    "seeds": "babel-node src/seeds.js"
   },
   "author": "Henry Netzer",
   "license": "ISC",

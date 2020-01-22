@@ -1,4 +1,5 @@
-import models from './models';
+import 'dotenv/config';
+import models, { sequelize } from './models';
 
 const {
   Jurisdiction,
@@ -363,7 +364,10 @@ const seedData = async () => {
   await seedFilings();
 }
 
-export {
-  seedData,
-  countSeeds,
-}
+const DROP_TABLES_IF_EXIST = true;
+
+// entrypoint
+sequelize.sync({ force: DROP_TABLES_IF_EXIST }).then(async () => {
+  await seedData();
+  countSeeds();
+});
