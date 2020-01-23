@@ -1,6 +1,4 @@
 import models, { sequelize } from '../models';
-import passport from 'passport';
-import jwt from 'jsonwebtoken';
 
 const {
   Company,

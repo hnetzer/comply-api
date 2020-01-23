@@ -12,6 +12,7 @@ import models, { sequelize } from './models';
 import { getFilings } from './controllers/filingController'
 import { createAccount, login } from './controllers/accountController'
 import { updateCompany, updateOffices } from './controllers/companyController'
+import { getAgencies } from './controllers/agenciesController'
 
 // Epress server
 const app = express();
@@ -35,6 +36,8 @@ companyRouter.put('/:companyId', updateCompany);
 companyRouter.put('/:companyId/offices', updateOffices);
 
 app.use('/company', companyRouter);
+
+app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgencies)
 
 app.listen(process.env.PORT, () =>
   console.log(`Example app listening on port ${process.env.PORT}!`),
