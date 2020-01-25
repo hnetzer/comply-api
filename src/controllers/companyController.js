@@ -8,6 +8,18 @@ const {
   Office,
 } = models;
 
+
+const getCompany = async (req, res, next) => {
+  const companyId = req.params.companyId
+
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  const company = await Company.findOne({ where: { id: companyId }, raw: true });
+  return res.status(200).json(company)
+}
+
   // TODO: make sure the user owns that company
 const updateCompany = async (req, res, next) => {
   const companyId = req.params.companyId;
@@ -103,6 +115,7 @@ const getCompanyJurisdictions = async (companyId, offices) => {
 }
 
 export {
+  getCompany,
   updateCompany,
   updateOffices
 }

@@ -11,15 +11,15 @@ const {
 
 const seedJurisdictions = async () => {
   await Jurisdiction.bulkCreate([
-    { name: 'Delaware' },
-    { name: 'California' },
-    { name: 'San Francisco County' },
-    { name: 'San Francisco' },
-    { name: 'Federal' },
-    { name: 'Los Angeles County' },
-    { name: 'Los Angeles' },
-    { name: 'New York' },
-    { name: 'New York City' }
+    { name: 'Delaware', state: 'Delaware', type: 'state'},
+    { name: 'California', state: 'California', type: 'state' },
+    { name: 'San Francisco County', state: 'California', type: 'county' },
+    { name: 'San Francisco', state: 'California', type: 'city' },
+    { name: 'Federal', state: null, type: 'federal' },
+    { name: 'Los Angeles County', state: 'California', type: 'county' },
+    { name: 'Los Angeles', state: 'California', type: 'city' },
+    { name: 'New York', state: 'New York', type: 'state' },
+    { name: 'New York City', state: 'New York', type: 'state' }
   ]);;
 }
 
