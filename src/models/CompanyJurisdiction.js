@@ -3,7 +3,7 @@ const companyJurisdiction = (sequelize, DataTypes) => {
     registration: {
       type: DataTypes.DATEONLY,
     },
-  });
+  }, { underscored: true });
 
   CompanyJurisdiction.associate = models => {
   };

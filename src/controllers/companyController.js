@@ -53,7 +53,6 @@ const updateOffices = async (req, res, next) => {
   const companyOffices = req.body.offices;
   const company = await Company.findOne({ where: { id: companyId } });
 
-
   try {
    // Delete all of the existing offices first
    await Office.destroy({ where: { company_id: companyId } })
@@ -112,6 +111,39 @@ const getCompanyJurisdictions = async (companyId, offices) => {
 
   cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['federal']})
   return cjs;
+}
+
+
+const updateAgencies = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  const agencyIds = req.body.agencies;
+  const company = await Company.findOne({ where: { id: companyId } });
+
+  try {
+   // Delete all of the existing offices first
+   await Office.destroy({ where: { company_id: companyId } })
+
+  // Create the new offices
+   await Office.bulkCreate(companyOffices.map(office => {
+     office.company_id = companyId;
+     return office
+   }))
+
+   // Get our newly created offices
+   const offices = await Office.findAll({ where: { company_id: companyId }, raw: true });
+
+   // Figure out which jurisdictions to create
+   const companyJurisdictions = await getCompanyJurisdictions(companyId, offices)
+
+   // Create the jurisdictions
+   await CompanyJurisdiction.bulkCreate(companyJurisdictions);
+
+   return res.status(200).json(offices)
+
+ } catch(err) {
+   console.log(err)
+   return res.status(500).send()
+ }
 }
 
 export {

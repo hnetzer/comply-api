@@ -6,10 +6,11 @@ const agency = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
     },
-  });
+  }, { underscored: true });
 
   Agency.associate = models => {
     Agency.belongsTo(models.Jurisdiction, {foreignKey: 'jurisdiction_id'});
+    Agency.belongsToMany(models.Company, { through: models.CompanyAgency })
   };
 
   Agency.findAllForJurisdictionIds = ({ ids }) => {

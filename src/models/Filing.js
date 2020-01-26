@@ -15,7 +15,7 @@ const filing = (sequelize, DataTypes) => {
     due_date_reg_offset_months: {
       type: DataTypes.FLOAT
     }
-  });
+  }, { underscored: true });
 
   Filing.associate = models => {
     Filing.belongsTo(models.Agency, {foreignKey: 'agency_id'});

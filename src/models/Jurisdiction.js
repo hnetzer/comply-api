@@ -3,7 +3,7 @@ const jurisdiction = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     state: DataTypes.STRING,
     type: DataTypes.STRING
-  });
+  }, { underscored: true });
 
   Jurisdiction.associate = models => {
     Jurisdiction.belongsToMany(models.Company, { through: models.CompanyJurisdiction })

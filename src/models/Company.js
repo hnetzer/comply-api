@@ -19,11 +19,12 @@ const company = (sequelize, DataTypes) => {
     year_end_day: {
       type: DataTypes.INTEGER,
     },
-  });
+  }, { underscored: true });
 
   Company.associate = models => {
     Company.belongsToMany(models.Jurisdiction, { through: models.CompanyJurisdiction })
     Company.hasMany(models.Office, { foreignKey: 'company_id' })
+    Company.belongsToMany(models.Agency, { through: models.CompanyAgency})
   };
 
   return Company;

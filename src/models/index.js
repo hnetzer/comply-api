@@ -26,6 +26,7 @@ const models = {
   Jurisdiction: sequelize.import('./Jurisdiction'),
   CompanyJurisdiction: sequelize.import('./CompanyJurisdiction'),
   Agency: sequelize.import('./Agency'),
+  CompanyAgency: sequelize.import('./CompanyAgency'),
   Filing: sequelize.import('./Filing'),
   User: sequelize.import('./User'),
   Office: sequelize.import('./Office')

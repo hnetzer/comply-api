@@ -18,7 +18,7 @@ const user = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       required: true
     }
-  });
+  }, { underscored: true });
 
   User.associate = models => {
     User.belongsTo(models.Company, {foreignKey: 'company_id'});

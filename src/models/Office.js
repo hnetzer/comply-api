@@ -16,7 +16,7 @@ const office = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       required: true
     },
-  });
+  }, { underscored: true });
 
   Office.associate = models => {
     Office.belongsTo(models.Company, { foreignKey: 'company_id' });
