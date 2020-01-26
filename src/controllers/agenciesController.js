@@ -39,8 +39,6 @@ const getAgencies = async (req, res, next) => {
       return acc;
     }, {});
 
-    console.log(jMap)
-
     const agenciesWithJurisdictions = agencies.map(a => {
       a.jurisdiction = jMap[a.jurisdiction_id]
       return a;

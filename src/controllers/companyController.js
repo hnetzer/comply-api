@@ -6,6 +6,8 @@ const {
   Jurisdiction,
   User,
   Office,
+  CompanyAgency,
+  Agency
 } = models;
 
 
@@ -113,32 +115,32 @@ const getCompanyJurisdictions = async (companyId, offices) => {
   return cjs;
 }
 
-
 const updateAgencies = async (req, res, next) => {
   const companyId = req.params.companyId;
   const agencyIds = req.body.agencies;
+
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
   const company = await Company.findOne({ where: { id: companyId } });
 
   try {
-   // Delete all of the existing offices first
-   await Office.destroy({ where: { company_id: companyId } })
+   // Delete all of the existing company agencies
+   await CompanyAgency.destroy({ where: { company_id: companyId } })
 
-  // Create the new offices
-   await Office.bulkCreate(companyOffices.map(office => {
-     office.company_id = companyId;
-     return office
-   }))
+   // Create the new company agencies
+   const companyAgencies = agencyIds.map(id => ({ agencyId: id, companyId: req.user.company_id }))
+   console.log('companyAgencies -->')
+   console.log(companyAgencies)
+   await CompanyAgency.bulkCreate(companyAgencies)
 
-   // Get our newly created offices
-   const offices = await Office.findAll({ where: { company_id: companyId }, raw: true });
+   const agencies = await Agency.findAll({
+     where: { id: agencyIds },
+     raw: true
+   })
 
-   // Figure out which jurisdictions to create
-   const companyJurisdictions = await getCompanyJurisdictions(companyId, offices)
-
-   // Create the jurisdictions
-   await CompanyJurisdiction.bulkCreate(companyJurisdictions);
-
-   return res.status(200).json(offices)
+   return res.status(200).json(agencies)
 
  } catch(err) {
    console.log(err)
@@ -149,5 +151,6 @@ const updateAgencies = async (req, res, next) => {
 export {
   getCompany,
   updateCompany,
-  updateOffices
+  updateOffices,
+  updateAgencies
 }

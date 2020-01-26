@@ -11,7 +11,12 @@ import models, { sequelize } from './models';
 // Controllers
 import { getFilings } from './controllers/filingController'
 import { createAccount, login } from './controllers/accountController'
-import { updateCompany, updateOffices, getCompany } from './controllers/companyController'
+import {
+  updateCompany,
+  updateOffices,
+  getCompany,
+  updateAgencies
+} from './controllers/companyController'
 import { getAgencies } from './controllers/agenciesController'
 
 // Epress server
@@ -35,6 +40,7 @@ companyRouter.use(passport.authenticate('jwt', { session: false }));
 companyRouter.get('/:companyId', getCompany)
 companyRouter.put('/:companyId', updateCompany);
 companyRouter.put('/:companyId/offices', updateOffices);
+companyRouter.put('/:companyId/agencies', updateAgencies);
 
 app.use('/company', companyRouter);
 
