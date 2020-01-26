@@ -19,6 +19,18 @@ const getCompany = async (req, res, next) => {
   }
 
   const company = await Company.findOne({ where: { id: companyId }, raw: true });
+  const agencyIds = await CompanyAgency.findAll({
+    where: { company_id: companyId },
+    raw: true,
+  })
+
+  const agencies = await Agency.findAll({
+    where: { id: agencyIds.map(a => a.agencyId) },
+    raw: true
+  })
+
+  company.agencies = agencies;
+
   return res.status(200).json(company)
 }
 
@@ -131,8 +143,7 @@ const updateAgencies = async (req, res, next) => {
 
    // Create the new company agencies
    const companyAgencies = agencyIds.map(id => ({ agencyId: id, companyId: req.user.company_id }))
-   console.log('companyAgencies -->')
-   console.log(companyAgencies)
+
    await CompanyAgency.bulkCreate(companyAgencies)
 
    const agencies = await Agency.findAll({
