@@ -1,4 +1,5 @@
 import models, { sequelize } from '../models';
+import { Op } from 'sequelize';
 
 const {
   Company,
@@ -15,7 +16,6 @@ const getAgencies = async (req, res, next) => {
 
   try {
     const jIds = await CompanyJurisdiction.findAll({
-      attributes: ['jurisdictionId'],
       where: { companyId: companyId },
       raw: true,
     });
@@ -27,17 +27,29 @@ const getAgencies = async (req, res, next) => {
 
     const agencies = await Agency.findAll({
       where: { jurisdiction_id: jurisdictionIds },
-      include: [{
-        model: Jurisdiction,
-        attributes: ['name']
-      }],
       raw: true
     });
 
-    res.status(200).json(agencies)
+    const jurisdictions = await Jurisdiction.findAll({
+      raw: true
+    });
+
+    const jMap = jurisdictions.reduce((acc, j) => {
+      acc[j.id] = j;
+      return acc;
+    }, {});
+
+    console.log(jMap)
+
+    const agenciesWithJurisdictions = agencies.map(a => {
+      a.jurisdiction = jMap[a.jurisdiction_id]
+      return a;
+    })
+
+    return res.status(200).json(agenciesWithJurisdictions)
   } catch (err) {
-    // console.log(err)
-    res.status(500).send()
+    console.log(err)
+    return res.status(500).send()
   }
 }
 
