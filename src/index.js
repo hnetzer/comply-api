@@ -9,13 +9,14 @@ import passport from 'passport';
 import models, { sequelize } from './models';
 
 // Controllers
-import { getFilings } from './controllers/filingController'
+// import { getFilings } from './controllers/filingController'
 import { createAccount, login } from './controllers/accountController'
 import {
   updateCompany,
   updateOffices,
   getCompany,
-  updateAgencies
+  updateAgencies,
+  getCompanyFilings,
 } from './controllers/companyController'
 import { getAgencies } from './controllers/agenciesController'
 
@@ -28,7 +29,7 @@ app.use(passport.initialize());
 app.use(cors());
 
 // Routes
-app.get('/filings', getFilings);
+//app.get('/filings', getFilings);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
 
 app.post('/account', createAccount);
@@ -41,6 +42,7 @@ companyRouter.get('/:companyId', getCompany)
 companyRouter.put('/:companyId', updateCompany);
 companyRouter.put('/:companyId/offices', updateOffices);
 companyRouter.put('/:companyId/agencies', updateAgencies);
+companyRouter.get('/:companyId/filings', getCompanyFilings);
 
 app.use('/company', companyRouter);
 
