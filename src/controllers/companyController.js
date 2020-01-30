@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import moment from 'moment';
 import models, { sequelize } from '../models';
 
@@ -99,34 +100,47 @@ const updateOffices = async (req, res, next) => {
 
 // Helper function to map office locations -> jurisdictions;
 const getCompanyJurisdictions = async (companyId, offices) => {
-  const jurisdictions = await Jurisdiction.findAll({ raw: true });
+  const existing = await CompanyJurisdiction.findOne({
+    where: { companyId: companyId },
+    raw: true
+  });
+  const jurisdictions = await Jurisdiction.findAll({});
   const jurisdictionMap = jurisdictions.reduce((acc, j) => {
     acc[j.name.toLowerCase()] = j.id;
     return acc
-  }, {})
+  }, {});
+
+  const existingJId = existing.jurisdictionId
 
   const cjs = []
   offices.forEach(office => {
     if (office.city.toLowerCase().trim() === 'san francisco') {
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['san francisco']})
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['san francisco county']})
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['california']})
+      addCJHelper(companyId, 'san francisco', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'san francisco county', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'california', existingJId, jurisdictionMap, cjs)
     }
 
     if (office.city.toLowerCase().trim() === 'los angeles') {
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['los angeles']})
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['los angeles county']})
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['california']})
+      addCJHelper(companyId, 'los angeles', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'los angeles county', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'california', existingJId, jurisdictionMap, cjs)
     }
 
     if (office.city.toLowerCase().trim() === 'new york') {
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['new york city']})
-      cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['new york']})
+      addCJHelper(companyId, 'new york city', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'new york', existingJId, jurisdictionMap, cjs)
     }
   });
 
   cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['federal']})
   return cjs;
+}
+
+const addCJHelper = (companyId, jName, existingJId, map, array) => {
+  const jId = map[jName];
+  if(jId != existingJId) {
+    array.push({ companyId: companyId, jurisdictionId: jId})
+  }
 }
 
 const updateAgencies = async (req, res, next) => {
