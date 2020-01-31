@@ -9,7 +9,7 @@ import passport from 'passport';
 import models, { sequelize } from './models';
 
 // Controllers
-// import { getFilings } from './controllers/filingController'
+import { getFiling } from './controllers/filingController'
 import { createAccount, login } from './controllers/accountController'
 import {
   updateCompany,
@@ -43,10 +43,11 @@ companyRouter.put('/:companyId', updateCompany);
 companyRouter.put('/:companyId/offices', updateOffices);
 companyRouter.put('/:companyId/agencies', updateAgencies);
 companyRouter.get('/:companyId/filings', getCompanyFilings);
-
 app.use('/company', companyRouter);
 
 app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgencies)
+
+app.get('/filings/:filingId', passport.authenticate('jwt', { session: false }), getFiling)
 
 app.listen(process.env.PORT, () =>
   console.log(`Example app listening on port ${process.env.PORT}!`),

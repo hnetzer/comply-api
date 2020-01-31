@@ -9,52 +9,30 @@ const {
   Filing
 } = models;
 
-const getFilings = async (req, res) => {
-  const companyId = req.query.companyId;
-  const company = await Company.findOne({ where: { id: companyId } });
-
-  const jurisdictions = await company.getJurisdictions({ raw: true })
-    .map(j => ({ name: j.name, id: j.id, reg: j['company_jurisdiction.registration'] }));
-
-  const cjMap = jurisdictions.reduce((map, j) => {
-    map[j.id] = { name: j.name, reg: j.reg }
-    return map;
-  }, {});
-
-  const agencies = await Agency.findAllForJurisdictionIds({ ids: jurisdictions.map(j => j.id) })
-  const filings = await Filing.findAllForAgencyIds({ ids: agencies.map(a => a.id), companyId: company.id })
-
-  const f = filings.map(f => {
-    const filing = f.get({ plain: true })
-
-    filing.due = filing.due_date
-
-    if (filing.due_date_year_end_offset_months) {
-      const offset = filing.due_date_year_end_offset_months;
-      const yearEnd = moment().year(2020).month(company.year_end_month).date(company.year_end_day);
-      yearEnd.add(offset, 'months');
-      filing.due = yearEnd.format('2020-MM-DD')
-    }
-
-    if (filing.due_date_reg_offset_months) {
-      const offset = filing.due_date_reg_offset_months;
-      const reg = moment(cjMap[filing.agency.jurisdiction.id].reg)
-      reg.add(offset, 'months');
-      filing.due = reg.format('2020-MM-DD')
-    }
-
-    return filing
-  })
-
-  res.json({
-    filings: f,
-    agencies: agencies,
-    jurisdictions: jurisdictions,
-    company: company
+const getFiling = async (req, res, next) => {
+  const filingId = req.params.filingId
+  const filing = await Filing.findOne({
+    where: { id: filingId },
+    raw: true
   });
+
+  const agency = await Agency.findOne({
+    where: { id: filing.agency_id },
+    raw: true
+  });
+
+  const jurisdiction = await Jurisdiction.findOne({
+    where: { id: agency.jurisdiction_id },
+    raw: true
+  });
+
+  filing.agency = agency;
+  filing.jurisdiction = jurisdiction;
+
+  return res.status(200).json(filing)
 }
 
 
 export {
-  getFilings
+  getFiling
 }
