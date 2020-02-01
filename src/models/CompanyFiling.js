@@ -4,10 +4,14 @@ const companyFiling = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       required: true
     },
-    fields: {
+    field_data: {
       type: DataTypes.JSONB,
       required: true
-    }
+    },
+    due_date: {
+      type: DataTypes.DATEONLY,
+      required: true
+    },
   }, { underscored: true });
 
   CompanyFiling.associate = models => {

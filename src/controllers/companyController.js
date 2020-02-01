@@ -10,7 +10,8 @@ const {
   Office,
   CompanyAgency,
   Agency,
-  Filing
+  Filing,
+  CompanyFiling
 } = models;
 
 
@@ -214,6 +215,8 @@ const getCompanyFilings =  async (req, res, next) => {
   return res.status(200).json(f)
 }
 
+
+// TODO: should calculate due date on the server probably
 const createCompanyFiling =  async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
@@ -222,6 +225,15 @@ const createCompanyFiling =  async (req, res, next) => {
 
   const filingId = req.params.filingId;
 
+  await CompanyFiling.create({
+    company_id: companyId,
+    filing_id: filingId,
+    status: req.body.status,
+    field_data: req.body.field_data,
+    due_date: req.body.due_date
+  });
+
+  return res.status(200).send()
 }
 
 export {
