@@ -189,7 +189,6 @@ const getCompanyFilings =  async (req, res, next) => {
   })
 
   const agencyIds = companyAgencies.map(a => a.agencyId)
-
   const filings = await Filing.findAllForAgencyIds({ ids: agencyIds, companyId: company.id })
 
   const f = filings.map(f => {
@@ -210,11 +209,18 @@ const getCompanyFilings =  async (req, res, next) => {
       reg.add(offset, 'months');
       filing.due = reg.format('2020-MM-DD')
     } */
-
     return filing
   })
-
   return res.status(200).json(f)
+}
+
+const createCompanyFiling =  async (req, res, next) => {
+  const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  const filingId = req.params.filingId;
 
 }
 
@@ -224,4 +230,5 @@ export {
   updateOffices,
   updateAgencies,
   getCompanyFilings,
+  createCompanyFiling,
 }

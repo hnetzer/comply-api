@@ -23,8 +23,9 @@ const company = (sequelize, DataTypes) => {
 
   Company.associate = models => {
     Company.belongsToMany(models.Jurisdiction, { through: models.CompanyJurisdiction })
-    Company.hasMany(models.Office, { foreignKey: 'company_id' })
     Company.belongsToMany(models.Agency, { through: models.CompanyAgency})
+    Company.hasMany(models.Office, { foreignKey: 'company_id' })
+    Company.hasMany(models.CompanyFiling, { foreignKey: 'company_id' })
   };
 
   return Company;

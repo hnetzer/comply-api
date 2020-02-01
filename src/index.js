@@ -17,6 +17,7 @@ import {
   getCompany,
   updateAgencies,
   getCompanyFilings,
+  createCompanyFiling
 } from './controllers/companyController'
 import { getAgencies } from './controllers/agenciesController'
 
@@ -43,6 +44,7 @@ companyRouter.put('/:companyId', updateCompany);
 companyRouter.put('/:companyId/offices', updateOffices);
 companyRouter.put('/:companyId/agencies', updateAgencies);
 companyRouter.get('/:companyId/filings', getCompanyFilings);
+companyRouter.post('/:companyId/filings/:filingId', createCompanyFiling);
 app.use('/company', companyRouter);
 
 app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgencies)
