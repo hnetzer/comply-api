@@ -25,6 +25,19 @@ const getCompanyFilings =  async (req, res, next) => {
 
   const agencyIds = companyAgencies.map(a => a.agencyId)
   const filings = await Filing.findAllForAgencyIds({ ids: agencyIds, companyId: company.id })
+
+  const companyFilings = await CompanyFiling.findAll({
+    where: { company_id: companyId },
+    raw: true
+  })
+
+  const companyFilingsMap = companyFilings.reduce((acc, c) => {
+    acc[c.filing_id] = c;
+    return acc
+  }, {})
+
+  console.log(companyFilingsMap)
+
   const f = filings.map(f => {
     const filing = f.get({ plain: true })
 
@@ -43,6 +56,12 @@ const getCompanyFilings =  async (req, res, next) => {
       reg.add(offset, 'months');
       filing.due = reg.format('2020-MM-DD')
     } */
+
+    if (companyFilingsMap[filing.id]) {
+      filing.companyFiling = companyFilingsMap[filing.id];
+    }
+
+
     return filing
   })
   return res.status(200).json(f)
