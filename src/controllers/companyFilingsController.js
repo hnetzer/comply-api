@@ -83,6 +83,9 @@ const getFiling =  async (req, res, next) => {
     raw: true
   })
 
+  const filing = await Filing.findOneWithDetails(companyFiling.filing_id)
+
+  companyFiling.filing = filing;
   return res.status(200).send(companyFiling)
 }
 

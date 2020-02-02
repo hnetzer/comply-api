@@ -33,6 +33,21 @@ const filing = (sequelize, DataTypes) => {
     })
   }
 
+  Filing.findOneWithDetails = async (id) => {
+    const f = await Filing.findOne({
+      where: { id: id }, raw: true
+    });
+    const a = await models.Agency.findOne({
+      where: { id: f.agency_id }, raw: true
+    });
+    const j = await models.Jurisdiction.findOne({
+      where: { id: a.jurisdiction_id }, raw: true
+    });
+    f.agency = a;
+    f.jurisdiction = j;
+    return f;
+  }
+
   return Filing;
 };
 export default filing;
