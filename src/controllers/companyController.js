@@ -10,14 +10,11 @@ const {
   Office,
   CompanyAgency,
   Agency,
-  Filing,
-  CompanyFiling
 } = models;
 
 
 const getCompany = async (req, res, next) => {
   const companyId = req.params.companyId
-
   if (req.user.company_id != companyId) {
     return res.status(401).send()
   }
@@ -34,7 +31,6 @@ const getCompany = async (req, res, next) => {
   })
 
   company.agencies = agencies;
-
   return res.status(200).json(company)
 }
 
@@ -57,7 +53,6 @@ const updateCompany = async (req, res, next) => {
     j.CompanyJurisdiction = {
       registration: jurisdiction.registration
     }
-
     await company.setJurisdictions([j], { through: { registration: jurisdiction.registration }})
   }
 
@@ -151,7 +146,6 @@ const updateAgencies = async (req, res, next) => {
   if (req.user.company_id != companyId) {
     return res.status(401).send()
   }
-
   const company = await Company.findOne({ where: { id: companyId } });
 
   try {
@@ -162,85 +156,22 @@ const updateAgencies = async (req, res, next) => {
    const companyAgencies = agencyIds.map(id => ({ agencyId: id, companyId: req.user.company_id }))
 
    await CompanyAgency.bulkCreate(companyAgencies)
-
    const agencies = await Agency.findAll({
      where: { id: agencyIds },
      raw: true
    })
 
    return res.status(200).json(agencies)
-
  } catch(err) {
    console.log(err)
    return res.status(500).send()
  }
 }
 
-const getCompanyFilings =  async (req, res, next) => {
-  const companyId = req.params.companyId;
-
-  if (req.user.company_id != companyId) {
-    return res.status(401).send()
-  }
-
-  const company = await Company.findOne({ where: { id: companyId } });
-  const companyAgencies = await CompanyAgency.findAll({
-    where: { company_id: companyId },
-    raw: true,
-  })
-
-  const agencyIds = companyAgencies.map(a => a.agencyId)
-  const filings = await Filing.findAllForAgencyIds({ ids: agencyIds, companyId: company.id })
-
-  const f = filings.map(f => {
-    const filing = f.get({ plain: true })
-
-    filing.due = filing.due_date
-
-    if (filing.due_date_year_end_offset_months) {
-      const offset = filing.due_date_year_end_offset_months;
-      const yearEnd = moment().year(2020).month(company.year_end_month).date(company.year_end_day);
-      yearEnd.add(offset, 'months');
-      filing.due = yearEnd.format('2020-MM-DD')
-    }
-
-    /* if (filing.due_date_reg_offset_months) {
-      const offset = filing.due_date_reg_offset_months;
-      const reg = moment(cjMap[filing.agency.jurisdiction.id].reg)
-      reg.add(offset, 'months');
-      filing.due = reg.format('2020-MM-DD')
-    } */
-    return filing
-  })
-  return res.status(200).json(f)
-}
-
-
-// TODO: should calculate due date on the server probably
-const createCompanyFiling =  async (req, res, next) => {
-  const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
-    return res.status(401).send()
-  }
-
-  const filingId = req.params.filingId;
-
-  await CompanyFiling.create({
-    company_id: companyId,
-    filing_id: filingId,
-    status: req.body.status,
-    field_data: req.body.field_data,
-    due_date: req.body.due_date
-  });
-
-  return res.status(200).send()
-}
 
 export {
   getCompany,
   updateCompany,
   updateOffices,
   updateAgencies,
-  getCompanyFilings,
-  createCompanyFiling,
 }
