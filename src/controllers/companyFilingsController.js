@@ -90,6 +90,25 @@ const createCompanyFiling =  async (req, res, next) => {
 }
 
 // TODO: should calculate due date on the server probably
+const updateCompanyFiling =  async (req, res, next) => {
+  const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  const companyFilingId = req.params.companyFilingId
+
+  const companyFiling = await CompanyFiling.update({
+    status: req.body.status,
+    field_data: req.body.field_data,
+  }, {
+    where: { id: companyFilingId },
+  });
+
+  return res.status(200).send({})
+}
+
+// TODO: should calculate due date on the server probably
 const getFiling =  async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
@@ -112,4 +131,5 @@ export {
   getCompanyFilings,
   createCompanyFiling,
   getFiling,
+  updateCompanyFiling
 }
