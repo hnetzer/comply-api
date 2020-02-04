@@ -99,14 +99,19 @@ const updateCompanyFiling =  async (req, res, next) => {
 
   const companyFilingId = req.params.companyFilingId
 
-  const companyFiling = await CompanyFiling.update({
+  await CompanyFiling.update({
     status: req.body.status,
     field_data: req.body.field_data,
   }, {
     where: { id: companyFilingId },
   });
 
-  return res.status(200).send({})
+  const companyFiling = await CompanyFiling.findOne({
+    where: { id: companyFilingId },
+    raw: true
+  })
+
+  return res.status(200).send(companyFiling)
 }
 
 // TODO: should calculate due date on the server probably
