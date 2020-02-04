@@ -32,41 +32,39 @@ const seedCompanies = async () => {
   ])
 }
 
-
-const createCompanyJurisdiction = async (companyName, jurisdictionName, reg) => {
+const createCompanyJurisdiction = async (companyName, jurisdictionName) => {
   const company = await Company.findOne({ where: { name: companyName }, raw: true });
   const jurisdiction = await Jurisdiction.findOne({ where: { name: jurisdictionName }, raw: true })
 
   await CompanyJurisdiction.create({
     companyId: company.id,
-    jurisdictionId: jurisdiction.id,
-    registration: reg
+    jurisdictionId: jurisdiction.id
   })
 }
 
 const seedCompanyJurisdictions = async () => {
   // Company A
   await createCompanyJurisdiction('Company A', 'Federal')
-  await createCompanyJurisdiction('Company A', 'California', '2019-06-01')
-  await createCompanyJurisdiction('Company A', 'San Francisco County', '2019-07-01')
-  await createCompanyJurisdiction('Company A', 'San Francisco', '2019-07-01')
-  await createCompanyJurisdiction('Company A', 'Delaware', '2009-06-01')
+  await createCompanyJurisdiction('Company A', 'California')
+  await createCompanyJurisdiction('Company A', 'San Francisco County')
+  await createCompanyJurisdiction('Company A', 'San Francisco')
+  await createCompanyJurisdiction('Company A', 'Delaware')
 
   // Company B
   await createCompanyJurisdiction('Company B', 'Federal')
-  await createCompanyJurisdiction('Company B', 'California', '2019-06-01')
-  await createCompanyJurisdiction('Company B', 'Los Angeles', '2019-10-01')
-  await createCompanyJurisdiction('Company B', 'Los Angeles County', '2019-10-14')
-  await createCompanyJurisdiction('Company B', 'Delaware', '2009-05-06')
+  await createCompanyJurisdiction('Company B', 'California')
+  await createCompanyJurisdiction('Company B', 'Los Angeles')
+  await createCompanyJurisdiction('Company B', 'Los Angeles County')
+  await createCompanyJurisdiction('Company B', 'Delaware')
 
   // Company C
   await createCompanyJurisdiction('Company C', 'Federal')
-  await createCompanyJurisdiction('Company C', 'California', '2019-02-01')
-  await createCompanyJurisdiction('Company C', 'San Francisco', '2018-04-06')
-  await createCompanyJurisdiction('Company C', 'San Francisco County', '2018-09-01')
-  await createCompanyJurisdiction('Company C', 'Delaware', '2017-01-01')
-  await createCompanyJurisdiction('Company C', 'New York', '2019-03-01')
-  await createCompanyJurisdiction('Company C', 'New York City', '2019-05-01')
+  await createCompanyJurisdiction('Company C', 'California')
+  await createCompanyJurisdiction('Company C', 'San Francisco')
+  await createCompanyJurisdiction('Company C', 'San Francisco County')
+  await createCompanyJurisdiction('Company C', 'Delaware')
+  await createCompanyJurisdiction('Company C', 'New York')
+  await createCompanyJurisdiction('Company C', 'New York City')
 }
 
 const createAgency = async (name, jurisdictionName) => {

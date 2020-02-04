@@ -12,7 +12,6 @@ const {
 
 const getCompanyFilings =  async (req, res, next) => {
   const companyId = req.params.companyId;
-
   if (req.user.company_id != companyId) {
     return res.status(401).send()
   }
@@ -36,11 +35,21 @@ const getCompanyFilings =  async (req, res, next) => {
     return acc
   }, {})
 
-  console.log(companyFilingsMap)
 
   const f = filings.map(f => {
     const filing = f.get({ plain: true })
 
+    // If this years filing has already been started
+    const companyFiling = companyFilingsMap[filing.id]
+    if (companyFiling) {
+      filing.companyFilingId = companyFiling.id;
+      filing.status = ccompanyFiling.status;
+      filing.due = companyFiling.due_date;
+      return filing
+    }
+
+
+    // Otherwise let's figure out the due_date
     filing.due = filing.due_date
 
     if (filing.due_date_year_end_offset_months) {
@@ -57,9 +66,7 @@ const getCompanyFilings =  async (req, res, next) => {
       filing.due = reg.format('2020-MM-DD')
     } */
 
-    if (companyFilingsMap[filing.id]) {
-      filing.companyFiling = companyFilingsMap[filing.id];
-    }
+
 
 
     return filing
