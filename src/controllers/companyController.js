@@ -50,10 +50,7 @@ const updateCompany = async (req, res, next) => {
       where: { name: req.body.jurisdiction.name }
     });
 
-    j.CompanyJurisdiction = {
-      registration: jurisdiction.registration
-    }
-    await company.setJurisdictions([j], { through: { registration: jurisdiction.registration }})
+    await company.setJurisdictions([j])
   }
 
   const c = await Company.findOne({ where: { id: req.user.company_id }, raw: true });

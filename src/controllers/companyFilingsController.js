@@ -43,15 +43,13 @@ const getCompanyFilings =  async (req, res, next) => {
     const companyFiling = companyFilingsMap[filing.id]
     if (companyFiling) {
       filing.companyFilingId = companyFiling.id;
-      filing.status = ccompanyFiling.status;
+      filing.status = companyFiling.status;
       filing.due = companyFiling.due_date;
       return filing
     }
 
-
     // Otherwise let's figure out the due_date
     filing.due = filing.due_date
-
     if (filing.due_date_year_end_offset_months) {
       const offset = filing.due_date_year_end_offset_months;
       const yearEnd = moment().year(2020).month(company.year_end_month).date(company.year_end_day);
@@ -66,14 +64,10 @@ const getCompanyFilings =  async (req, res, next) => {
       filing.due = reg.format('2020-MM-DD')
     } */
 
-
-
-
     return filing
   })
   return res.status(200).json(f)
 }
-
 
 // TODO: should calculate due date on the server probably
 const createCompanyFiling =  async (req, res, next) => {
