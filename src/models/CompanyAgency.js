@@ -6,6 +6,8 @@ const companyAgency = (sequelize, DataTypes) => {
   }, { underscored: true });
 
   CompanyAgency.associate = models => {
+    CompanyAgency.belongsTo(models.Agency, {foreignKey: 'agency_id'});
+    CompanyAgency.belongsTo(models.Company, {foreignKey: 'company_id'});
   };
 
   return CompanyAgency;

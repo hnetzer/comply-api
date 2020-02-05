@@ -165,10 +165,45 @@ const updateAgencies = async (req, res, next) => {
  }
 }
 
+const getAgencies = async (req, res, next) => {
+  const companyId = req.params.companyId;
+
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  try {
+    const companyAgencies = await CompanyAgency.findAll({
+      where: { company_id: companyId },
+      include: [{
+        model: Agency,
+        include: [{
+          model: Jurisdiction,
+        }],
+      }],
+      raw: true
+    })
+
+    const values = companyAgencies.map(x => ({
+      registration: x.registration,
+      agency_id: x.agency_id,
+      name: x['agency.name'],
+      jurisdiction: x['agency.jurisdiction.name'],
+      jurisdiction_id: x['agency.jurisdiction.id']
+    }));
+
+   return res.status(200).json(values)
+ } catch(err) {
+   console.log(err)
+   return res.status(500).send()
+ }
+}
+
 
 export {
   getCompany,
   updateCompany,
   updateOffices,
   updateAgencies,
+  getAgencies
 }
