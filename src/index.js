@@ -16,6 +16,7 @@ import { getAgencies } from './controllers/agenciesController';
 // Routers
 import CompanyRouter from './routes/companyRouter';
 import FilingsRouter from './routes/filingsRouter';
+import AdminRouter from './routes/adminRouter';
 
 // Epress server
 const app = express();
@@ -34,6 +35,7 @@ app.get('/status', (req, res) => res.json({ status: "we good" }));
 // Set other routers
 FilingsRouter(app);
 CompanyRouter(app);
+AdminRouter(app);
 
 app.listen(process.env.PORT, () =>
   console.log(`Example app listening on port ${process.env.PORT}!`),

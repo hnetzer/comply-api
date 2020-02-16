@@ -6,7 +6,9 @@ const {
   Company,
   CompanyAgency,
   CompanyFiling,
-  Filing
+  Filing,
+  Agency,
+  Jurisdiction
 } = models;
 
 
@@ -133,9 +135,31 @@ const getFiling =  async (req, res, next) => {
   return res.status(200).send(companyFiling)
 }
 
+// only admin uses this function right now
+const getAll = async (req, res, next) => {
+  const all = await CompanyFiling.findAll({
+    include: [{
+      model: Filing,
+      include:[{
+        model: Agency,
+        include: [{
+          model: Jurisdiction,
+        }]
+      }]
+    }, {
+      model: Company
+    }],
+  });
+
+  return res.status(200).send(all)
+}
+
 export {
   getCompanyFilings,
   createCompanyFiling,
   getFiling,
-  updateCompanyFiling
+  updateCompanyFiling,
+
+  //admin
+  getAll
 }
