@@ -6,7 +6,9 @@ const {
   Company,
   CompanyJurisdiction,
   Agency,
-  Filing
+  Filing,
+  Office,
+  User
 } = models;
 
 const seedJurisdictions = async () => {
@@ -26,10 +28,32 @@ const seedJurisdictions = async () => {
 // TODO: dates come from moment, use moment js
 const seedCompanies = async () => {
   await Company.bulkCreate([
-    { name: 'Company A', year_end_month: 11, year_end_day: 31 },
-    { name: 'Company B', year_end_month: 5, year_end_day: 30 },
-    { name: 'Company C', year_end_month: 11, year_end_day: 31 },
+    { name: 'Company A', year_end_month: 11, year_end_day: 31, type: 'Corporation', tax_class: 'C Corp', phone: '4125510569' },
+    { name: 'Company B', year_end_month: 5, year_end_day: 30, type: 'Corporation', tax_class: 'C Corp', phone: '4125510569' },
+    { name: 'Company C', year_end_month: 11, year_end_day: 31, type: 'Corporation', tax_class: 'C Corp', phone: '4125510569' },
   ])
+}
+
+const createOffice = async (companyName, { address, city, state, zip }) => {
+  const company = await Company.findOne({ where: { name: companyName }, raw: true });
+  await Office.create({
+    companyId: company.id,
+    address: address,
+    city: city,
+    state: state,
+    zip: zip
+  })
+}
+
+const seedOffices = async () => {
+  const sfOffice = { address: '1601 Mission St. #800', city: 'Oakland', state: 'California', zip: '94110' }
+  const nyOffice = { address: '320 W 37th St.', city: 'New York', state: 'New York', zip: '10018' }
+  const laOffice = { address: '1901 Avenue of the Stars #2000', city: 'Los Angeles', state: 'California', zip: '90067' }
+
+  await createOffice('Company A', sfOffice)
+  await createOffice('Company B', laOffice)
+  await createOffice('Company C', sfOffice)
+  await createOffice('Company C', nyOffice)
 }
 
 const createCompanyJurisdiction = async (companyName, jurisdictionName) => {
@@ -336,12 +360,75 @@ const seedFilings = async () => {
   }, 'department of taxation and finance', 'New York')
 }
 
+const createUser = async (companyName, { name, title, email, password, roles, permissions}) => {
+  let companyId = null
+  if (companyName) {
+    const company = await Company.findOne({ where: { name: companyName }, raw: true });
+    companyId = company.id
+  }
+
+  await User.create({
+    company_id: companyId,
+    name: name,
+    title: title,
+    email: email,
+    password: password,
+    roles: roles,
+    permissions: permissions
+  })
+
+}
+
+const seedUsers = async () => {
+  await createUser('Company A', {
+    name: 'Finance Guy',
+    title: 'CFO',
+    email: 'test_a@corp.com',
+    password: 'test',
+    roles: [ 'client' ],
+    permissions: [],
+  })
+
+  await createUser('Company B', {
+    name: 'Ops Person',
+    title: 'Administrator',
+    email: 'test_b@corp.com',
+    password: 'test',
+    roles: [ 'client' ],
+    permissions: [],
+  })
+
+  await createUser('Company C', {
+    name: 'CEO Person',
+    title: 'CEO',
+    email: 'test_c@corp.com',
+    password: 'test',
+    roles: [ 'client' ],
+    permissions: [],
+  })
+
+  await createUser(null, {
+    name: 'Admin Account',
+    title: 'admin',
+    email: 'admin@comply.co',
+    password: 'test',
+    roles: [ 'admin' ],
+    permissions: [],
+  })
+}
+
 const countSeeds = () => {
   Jurisdiction.count().then(c => {
     console.log("There are " + c + " jurisdictions!")
   })
   Company.count().then(c => {
     console.log("There are " + c + " companies!")
+  })
+  Office.count().then(c => {
+    console.log("There are " + c + " offices!")
+  })
+  User.count().then(c => {
+    console.log("There are " + c + " users!")
   })
   CompanyJurisdiction.count().then(c => {
     console.log("There are " + c + " companies jurisdictions!")
@@ -357,6 +444,8 @@ const countSeeds = () => {
 const seedData = async () => {
   await seedJurisdictions();
   await seedCompanies();
+  await seedOffices();
+  await seedUsers();
   await seedCompanyJurisdictions();
   await seedAgencies();
   await seedFilings();

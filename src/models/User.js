@@ -17,6 +17,12 @@ const user = (sequelize, DataTypes) => {
     password: {
       type: DataTypes.STRING,
       required: true
+    },
+    roles: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+    },
+    permissions: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
     }
   }, { underscored: true });
 
