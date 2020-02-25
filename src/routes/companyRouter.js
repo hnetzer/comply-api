@@ -6,7 +6,8 @@ import {
   updateOffices,
   getCompany,
   updateAgencies,
-  getAgencies
+  getAgencies,
+  updateCompanyAgency
 } from '../controllers/companyController'
 
 import {
@@ -25,6 +26,8 @@ router.get('/:companyId', getCompany)
 router.put('/:companyId', updateCompany);
 router.put('/:companyId/offices', updateOffices);
 router.put('/:companyId/agencies', updateAgencies);
+
+router.put('/:companyId/companyagencies/:agencyId', updateCompanyAgency);
 
 router.get('/:companyId/filings', getCompanyFilings);
 router.get('/:companyId/agencies', getAgencies);

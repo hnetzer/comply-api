@@ -165,6 +165,35 @@ const updateAgencies = async (req, res, next) => {
  }
 }
 
+const updateCompanyAgency = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  const agencyId = req.params.agencyId;
+
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  await CompanyAgency.update({
+    registration: req.body.registration,
+  }, {
+    where: { 
+      company_id: companyId,
+      agency_id: agencyId 
+    },
+    returning: true
+  });
+
+  const updatedCompanyAgency = await CompanyAgency.findOne({
+    where: { 
+      company_id: companyId,
+      agency_id: agencyId
+     },
+    raw: true
+  })
+
+  return res.status(200).send(updatedCompanyAgency)
+}
+
 const getAgencies = async (req, res, next) => {
   const companyId = req.params.companyId;
 
@@ -205,5 +234,6 @@ export {
   updateCompany,
   updateOffices,
   updateAgencies,
-  getAgencies
+  getAgencies,
+  updateCompanyAgency
 }
