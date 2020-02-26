@@ -154,6 +154,25 @@ const getAll = async (req, res, next) => {
   return res.status(200).send(all)
 }
 
+// only admin can reject filings
+// NOTE: need to update this to save the MESSAGE!
+const reject = async (req, res, next) => {
+  const companyFilingId = req.params.companyFilingId
+  const userId = req.user.id //note: this is the admin user!
+
+  const update = await CompanyFiling.update(
+    { status: 'needs-follow-up' },
+    { where: { id: companyFilingId } }
+  );
+
+  const companyFiling = await CompanyFiling.findOne({
+    where: { id: companyFilingId },
+    raw: true
+  })
+
+  return res.status(200).send(companyFiling)
+}
+
 export {
   getCompanyFilings,
   createCompanyFiling,
@@ -161,5 +180,6 @@ export {
   updateCompanyFiling,
 
   //admin
-  getAll
+  getAll,
+  reject
 }
