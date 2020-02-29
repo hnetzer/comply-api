@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 
-import { getAll, reject } from '../controllers/companyFilingsController'
+import { getAll, reject, updateStatus } from '../controllers/companyFilingsController'
 
 const adminCheck = (req, res, next) => {
   const { roles, permissions } = req.user
@@ -21,6 +21,7 @@ router.use(adminCheck)
 // Routes
 router.get('/companyfilings', getAll)
 router.put('/companyfilings/:companyFilingId/reject', reject)
+router.put('/companyfilings/:companyFilingId', updateStatus)
 
 
 module.exports = (app) =>{

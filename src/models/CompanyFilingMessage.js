@@ -1,5 +1,5 @@
 const companyFilingMessage = (sequelize, DataTypes) => {
-  const CompanyFilingMessage = sequelize.define('company_filing', {
+  const CompanyFilingMessage = sequelize.define('company_filing_messages', {
     content: {
       type: DataTypes.STRING,
       required: true

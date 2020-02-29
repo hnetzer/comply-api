@@ -6,6 +6,7 @@ const {
   Company,
   CompanyAgency,
   CompanyFiling,
+  CompanyFilingMessage,
   Filing,
   Agency,
   Jurisdiction
@@ -170,6 +171,31 @@ const reject = async (req, res, next) => {
     raw: true
   })
 
+  const { reason } = req.body
+  await CompanyFilingMessage.create({
+    company_filing_id: companyFilingId,
+    user_id: userId,
+    content: reason
+  });
+
+  return res.status(200).send(companyFiling)
+}
+
+// admin
+const updateStatus =  async (req, res, next) => {
+  const companyFilingId = req.params.companyFilingId
+
+  await CompanyFiling.update({
+    status: req.body.status,
+  }, {
+    where: { id: companyFilingId },
+  });
+
+  const companyFiling = await CompanyFiling.findOne({
+    where: { id: companyFilingId },
+    raw: true
+  })
+
   return res.status(200).send(companyFiling)
 }
 
@@ -181,5 +207,6 @@ export {
 
   //admin
   getAll,
-  reject
+  reject,
+  updateStatus
 }
