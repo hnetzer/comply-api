@@ -11,6 +11,10 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
+        name: {
+          type: Sequelize.STRING,
+          required: true
+        },
         due_date: {
           type: Sequelize.DATEONLY
         },
