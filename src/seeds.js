@@ -454,7 +454,9 @@ const seedData = async () => {
 const DROP_TABLES_IF_EXIST = true;
 
 // entrypoint
-sequelize.sync({ force: DROP_TABLES_IF_EXIST }).then(async () => {
+const start = async () => {
   await seedData();
   countSeeds();
-});
+}
+
+start()
