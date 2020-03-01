@@ -117,10 +117,10 @@ const updateCompanyFiling =  async (req, res, next) => {
   return res.status(200).send(companyFiling)
 }
 
-// TODO: should calculate due date on the server probably
+// This endpoint is used by BOTH customer and admin
 const getFiling =  async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (req.user.company_id != companyId && req.user.roles.indexOf('admin') === -1) {
     return res.status(401).send()
   }
 
@@ -168,8 +168,18 @@ const reject = async (req, res, next) => {
 
   const companyFiling = await CompanyFiling.findOne({
     where: { id: companyFilingId },
-    raw: true
-  })
+    include: [{
+      model: Filing,
+      include:[{
+        model: Agency,
+        include: [{
+          model: Jurisdiction,
+        }]
+      }]
+    }, {
+      model: Company
+    }],
+  });
 
   const { reason } = req.body
   await CompanyFilingMessage.create({
@@ -193,8 +203,18 @@ const updateStatus =  async (req, res, next) => {
 
   const companyFiling = await CompanyFiling.findOne({
     where: { id: companyFilingId },
-    raw: true
-  })
+    include: [{
+      model: Filing,
+      include:[{
+        model: Agency,
+        include: [{
+          model: Jurisdiction,
+        }]
+      }]
+    }, {
+      model: Company
+    }],
+  });
 
   return res.status(200).send(companyFiling)
 }
