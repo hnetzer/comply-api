@@ -9,7 +9,8 @@ const {
   CompanyFilingMessage,
   Filing,
   Agency,
-  Jurisdiction
+  Jurisdiction,
+  User
 } = models;
 
 
@@ -136,6 +137,26 @@ const getFiling =  async (req, res, next) => {
   return res.status(200).send(companyFiling)
 }
 
+
+const getCompanyFilingMessages = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  const companyFilingId = req.params.companyFilingId
+  const messages = await CompanyFilingMessage.findAll({
+    where: { company_filing_id: companyFilingId },
+    include: [{
+      model: User,
+    }]
+  });
+
+  return res.status(200).send(messages)
+}
+
+
+
 // only admin uses this function right now
 const getAll = async (req, res, next) => {
   const all = await CompanyFiling.findAll({
@@ -224,6 +245,7 @@ export {
   createCompanyFiling,
   getFiling,
   updateCompanyFiling,
+  getCompanyFilingMessages,
 
   //admin
   getAll,

@@ -14,7 +14,8 @@ import {
   getCompanyFilings,
   createCompanyFiling,
   getFiling,
-  updateCompanyFiling
+  updateCompanyFiling,
+  getCompanyFilingMessages
 } from '../controllers/companyFilingsController'
 
 
@@ -31,9 +32,13 @@ router.put('/:companyId/companyagencies/:agencyId', updateCompanyAgency);
 
 router.get('/:companyId/filings', getCompanyFilings);
 router.get('/:companyId/agencies', getAgencies);
+
+// TODO: change these URLS to be /companyfiling not /filing
 router.post('/:companyId/filings', createCompanyFiling);
 router.get('/:companyId/filings/:companyFilingId', getFiling);
 router.put('/:companyId/filings/:companyFilingId', updateCompanyFiling);
+
+router.get('/:companyId/companyfilings/:companyFilingId/messages', getCompanyFilingMessages);
 
 module.exports = (app) => {
   app.use('/company', router);
