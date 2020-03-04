@@ -3,11 +3,9 @@ import fs from 'fs';
 import path from 'path';
 
 // read the sequelize config file
-// const basename = path.basename(__filename);
+const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const src = __dirname.substring(0, __dirname.lastIndexOf('/'));
-console.log(`${src}/config/config.json`)
-const config = require(`${src}/config/config.json`)[env];
+const config = require(__dirname + '/../config/config.json')[env];
 
 let sequelize = null;
 
