@@ -5,7 +5,13 @@ import path from 'path';
 // read the sequelize config file
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require('../config/config.json')[env];
+
+console.log('here here here here here')
+console.log(basename)
+console.log(__filename)
+console.log(__dirname)
+
+const config = require(__dirname + '/../config/config.json')[env];
 
 let sequelize = null;
 
