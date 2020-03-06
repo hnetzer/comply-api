@@ -12,6 +12,7 @@ module.exports = {
           autoIncrement: true
         },
         name: {
+          required: true,
           type: Sequelize.STRING
         },
         state: {

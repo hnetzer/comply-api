@@ -2,6 +2,7 @@ import express from 'express';
 import passport from 'passport';
 
 import { getAll, reject, updateStatus, getFiling } from '../controllers/companyFilingsController'
+import { getJurisdictions, createJurisdiction } from '../controllers/jurisdictionsController'
 
 const adminCheck = (req, res, next) => {
   const { roles, permissions } = req.user
@@ -23,6 +24,9 @@ router.get('/companyfilings', getAll)
 router.get('/companyfilings/:companyFilingId', getFiling)
 router.put('/companyfilings/:companyFilingId/reject', reject)
 router.put('/companyfilings/:companyFilingId', updateStatus)
+
+router.get('/jurisdictions', getJurisdictions)
+router.post('/jurisdictions', createJurisdiction)
 
 
 module.exports = (app) =>{
