@@ -20,8 +20,28 @@ const createJurisdiction = async (req, res, next) => {
     return res.status(200).json(jurisdiction)
 }
 
+const updateJurisdiction = async (req, res, next) => {
+  const jurisdictionId = req.params.jurisdictionId
+  const { name, state, type } = req.body
+  await Jurisdiction.update({
+    name: name,
+    state: state,
+    type: type
+  }, {
+    where: { id: jurisdictionId }
+  });
+
+  const jurisdiction = await Jurisdiction.findOne({
+    where: { id: jurisdictionId },
+    raw: true
+  });
+
+  return res.status(200).json(jurisdiction)
+}
+
 
 export {
   getJurisdictions,
-  createJurisdiction
+  createJurisdiction,
+  updateJurisdiction
 }
