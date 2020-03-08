@@ -11,7 +11,7 @@ import models, { sequelize } from './models';
 // Controllers
 import { getFiling } from './controllers/filingController';
 import { createAccount, login } from './controllers/accountController';
-import { getAgencies } from './controllers/agenciesController';
+import { getAgenciesForCompany } from './controllers/agenciesController';
 
 // Routers
 import CompanyRouter from './routes/companyRouter';
@@ -29,7 +29,7 @@ app.use(cors());
 // Routes
 app.post('/account', createAccount);
 app.post('/login', passport.authenticate('local', { session: false }), login);
-app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgencies);
+app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgenciesForCompany);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
 
 // Set other routers

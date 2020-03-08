@@ -11,7 +11,7 @@ const {
 } = models;
 
 // Gets agencies based on a company's jurisdictions
-const getAgencies = async (req, res, next) => {
+const getAgenciesForCompany = async (req, res, next) => {
   const companyId = req.query.companyId;
 
   try {
@@ -51,6 +51,36 @@ const getAgencies = async (req, res, next) => {
   }
 }
 
+const getAgencies = async (req, res, next) => {
+  const agencies = await Agency.findAll({
+    include: {
+      model: Jurisdiction
+    }
+  });
+
+  return res.status(200).send(agencies)
+}
+
+const createAgency = async (req, res, next) => {
+    const { name, jurisdiction_id } = req.body
+    const result = await Agency.create({
+      name: name,
+      jurisdiction_id: jurisdiction_id
+    });
+
+    const agency = await Agency.findOne({
+      where: { id: result.id },
+      include: {
+        model: Jurisdiction
+      }
+    });
+
+    return res.status(200).json(agency)
+}
+
+
 export {
-  getAgencies
+  getAgenciesForCompany,
+  getAgencies,
+  createAgency
 }
