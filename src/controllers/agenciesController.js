@@ -78,9 +78,28 @@ const createAgency = async (req, res, next) => {
     return res.status(200).json(agency)
 }
 
+const updateAgency = async (req, res, next) => {
+  const agencyId = req.params.agencyId
+  const { name, jurisdiction_id } = req.body
+  await Agency.update({
+    name: name,
+    jurisdiction_id: jurisdiction_id
+  }, {
+    where: { id: agencyId }
+  });
+
+  const agency = await Agency.findOne({
+    where: { id: agencyId },
+    raw: true
+  });
+
+  return res.status(200).json(agency)
+}
+
 
 export {
   getAgenciesForCompany,
   getAgencies,
-  createAgency
+  createAgency,
+  updateAgency
 }

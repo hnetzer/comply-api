@@ -16,7 +16,8 @@ import {
 
 import {
   getAgencies,
-  createAgency
+  createAgency,
+  updateAgency
 } from '../controllers/agenciesController';
 
 const adminCheck = (req, res, next) => {
@@ -45,6 +46,7 @@ router.put('/jurisdictions/:jurisdictionId', updateJurisdiction)
 
 router.get('/agencies', getAgencies)
 router.post('/agencies', createAgency)
+router.put('/agencies/:agencyId', updateAgency)
 
 module.exports = (app) =>{
   app.use('/admin', router);
