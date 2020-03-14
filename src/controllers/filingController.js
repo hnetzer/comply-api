@@ -32,7 +32,16 @@ const getFiling = async (req, res, next) => {
   return res.status(200).json(filing)
 }
 
+const getAllFilings = async (req, res, next) => {
+  const filings = await Filing.findAll({
+    raw: true
+  })
+
+  return res.status(200).json(filings)
+}
+
 
 export {
-  getFiling
+  getFiling,
+  getAllFilings
 }
