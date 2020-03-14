@@ -34,7 +34,12 @@ const getFiling = async (req, res, next) => {
 
 const getAllFilings = async (req, res, next) => {
   const filings = await Filing.findAll({
-    raw: true
+    include: [{
+      model: Agency,
+      include: [{
+        model: Jurisdiction
+      }]
+    }]
   })
 
   return res.status(200).json(filings)
