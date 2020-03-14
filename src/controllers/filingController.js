@@ -6,28 +6,24 @@ const {
   Company,
   CompanyJurisdiction,
   Agency,
-  Filing
+  Filing,
+  FilingField
 } = models;
 
 const getFiling = async (req, res, next) => {
   const filingId = req.params.filingId
   const filing = await Filing.findOne({
     where: { id: filingId },
-    raw: true
+    include: [{
+      model: Agency,
+      include: [{
+        model: Jurisdiction
+      }]
+    }, {
+      model: FilingField,
+      as: 'fields'
+    }]
   });
-
-  const agency = await Agency.findOne({
-    where: { id: filing.agency_id },
-    raw: true
-  });
-
-  const jurisdiction = await Jurisdiction.findOne({
-    where: { id: agency.jurisdiction_id },
-    raw: true
-  });
-
-  filing.agency = agency;
-  filing.jurisdiction = jurisdiction;
 
   return res.status(200).json(filing)
 }
@@ -39,6 +35,9 @@ const getAllFilings = async (req, res, next) => {
       include: [{
         model: Jurisdiction
       }]
+    }, {
+      model: FilingField,
+      as: 'fields'
     }]
   })
 

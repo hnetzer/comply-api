@@ -19,6 +19,7 @@ const filing = (sequelize, DataTypes) => {
 
   Filing.associate = models => {
     Filing.belongsTo(models.Agency, {foreignKey: 'agency_id'});
+    Filing.hasMany(models.FilingField, { as: 'fields' });
   };
 
   Filing.findAllForAgencyIds = ({ ids }) => {

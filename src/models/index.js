@@ -28,6 +28,7 @@ const models = {
   Agency: sequelize.import('./Agency'),
   CompanyAgency: sequelize.import('./CompanyAgency'),
   Filing: sequelize.import('./Filing'),
+  FilingField: sequelize.import('./FilingField'),
   CompanyFiling: sequelize.import('./CompanyFiling'),
   CompanyFilingMessage: sequelize.import('./CompanyFilingMessage'),
   User: sequelize.import('./User'),
