@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable(
-      'filings',
+      'filing_due_dates',
       {
         id: {
           allowNull: false,
@@ -11,20 +11,28 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
-        name: {
+        offset_type: {
           type: Sequelize.STRING,
-          required: true
         },
-        occurrence: {
-          type: Sequelize.STRING,
-          required: true
+        fixed_month: {
+          type: Sequelize.INTEGER
         },
-        agency_id: {
+        fixed_day: {
           type: Sequelize.INTEGER,
-           references: {
-             model: 'agencies',
-             key: 'id'
-           }
+        },
+        offset_month: {
+          type: Sequelize.INTEGER
+        },
+        offset_day: {
+          type: Sequelize.STRING
+        },
+        filing_id: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'filings',
+            key: 'id'
+          }
         },
         created_at: {
           allowNull: false,
@@ -37,8 +45,7 @@ module.exports = {
       }
     );
   },
-
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('filings');
+    return queryInterface.dropTable('filing_due_dates');
   }
 };
