@@ -7,7 +7,8 @@ const {
   CompanyJurisdiction,
   Agency,
   Filing,
-  FilingField
+  FilingField,
+  FilingDueDate
 } = models;
 
 const getFiling = async (req, res, next) => {
@@ -50,7 +51,39 @@ const createFiling = async (req, res, next) => {
     console.log('GOT FILING ON THE SERVER!')
     console.log(filing)
 
-    return res.status(200).json(filing)
+    const result = await Filing.create({
+      name: filing.name,
+      occurrence: filing.occurrence,
+      agency_id: filing.agency_id,
+    });
+
+    await FilingDueDate.bulkCreate(filing.due_dates.map(f => {
+      f.filing_id = result.id;
+      return f
+    }))
+
+    await FilingField.bulkCreate(filing.fields.map(f => {
+      f.filing_id = result.id;
+      return f
+    }))
+
+    const newFiling = await Filing.findOne({
+      where: { id: result.id },
+      include: [{
+        model: Agency,
+        include: [{
+          model: Jurisdiction
+        }]
+      }, {
+        model: FilingField,
+        as: 'fields'
+      }, {
+        model: FilingDueDate,
+        as: 'due_dates'
+      }]
+    });
+
+    return res.status(200).json(newFiling)
 }
 
 
