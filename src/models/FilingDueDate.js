@@ -3,7 +3,7 @@ import models from '../models';
 const filingDueDate = (sequelize, DataTypes) => {
   const FilingDueDate = sequelize.define('filing_due_date', {
     offset_type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('none', 'registration', 'year-end'),
     },
     fixed_month: {
       type: DataTypes.INTEGER

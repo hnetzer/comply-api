@@ -24,11 +24,12 @@ module.exports = {
           type: Sequelize.STRING,
         },
         company_id: {
+          allowNull: false,
           type: Sequelize.INTEGER,
-           references: {
-             model: 'companies',
-             key: 'id'
-           }
+          references: {
+            model: 'companies',
+            key: 'id'
+          }
         },
         created_at: {
           allowNull: false,

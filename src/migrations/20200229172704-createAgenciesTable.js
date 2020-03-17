@@ -12,14 +12,16 @@ module.exports = {
           autoIncrement: true
         },
         name: {
+          allowNull: false,
           type: Sequelize.STRING
         },
         jurisdiction_id: {
           type: Sequelize.INTEGER,
-           references: {
-             model: 'jurisdictions',
-             key: 'id'
-           }
+          allowNull: false,
+          references: {
+            model: 'jurisdictions',
+            key: 'id'
+          }
         },
         created_at: {
           allowNull: false,

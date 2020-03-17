@@ -7,6 +7,7 @@ const {
   CompanyJurisdiction,
   Agency,
   Filing,
+  FilingDueDate,
   Office,
   User
 } = models;
@@ -17,7 +18,6 @@ const seedJurisdictions = async () => {
     { name: 'California', state: 'California', type: 'state' },
     { name: 'San Francisco County', state: 'California', type: 'county' },
     { name: 'San Francisco', state: 'California', type: 'city' },
-    { name: 'Federal', state: null, type: 'federal' },
     { name: 'Los Angeles County', state: 'California', type: 'county' },
     { name: 'Los Angeles', state: 'California', type: 'city' },
     { name: 'New York', state: 'New York', type: 'state' },
@@ -37,7 +37,7 @@ const seedCompanies = async () => {
 const createOffice = async (companyName, { address, city, state, zip }) => {
   const company = await Company.findOne({ where: { name: companyName }, raw: true });
   await Office.create({
-    companyId: company.id,
+    company_id: company.id,
     address: address,
     city: city,
     state: state,
@@ -68,21 +68,18 @@ const createCompanyJurisdiction = async (companyName, jurisdictionName) => {
 
 const seedCompanyJurisdictions = async () => {
   // Company A
-  await createCompanyJurisdiction('Company A', 'Federal')
   await createCompanyJurisdiction('Company A', 'California')
   await createCompanyJurisdiction('Company A', 'San Francisco County')
   await createCompanyJurisdiction('Company A', 'San Francisco')
   await createCompanyJurisdiction('Company A', 'Delaware')
 
   // Company B
-  await createCompanyJurisdiction('Company B', 'Federal')
   await createCompanyJurisdiction('Company B', 'California')
   await createCompanyJurisdiction('Company B', 'Los Angeles')
   await createCompanyJurisdiction('Company B', 'Los Angeles County')
   await createCompanyJurisdiction('Company B', 'Delaware')
 
   // Company C
-  await createCompanyJurisdiction('Company C', 'Federal')
   await createCompanyJurisdiction('Company C', 'California')
   await createCompanyJurisdiction('Company C', 'San Francisco')
   await createCompanyJurisdiction('Company C', 'San Francisco County')
@@ -101,263 +98,219 @@ const createAgency = async (name, jurisdictionName) => {
 }
 
 const seedAgencies = async () => {
-  await createAgency('internal revenue service', 'Federal')
-  await createAgency('secretary of state', 'Delaware')
-  await createAgency('franchise tax board', 'California')
-  await createAgency('secretary of state', 'California')
-  await createAgency('assessor', 'San Francisco County')
-  await createAgency('tax and treasurer', 'San Francisco')
-  await createAgency('assessor', 'Los Angeles County')
-  await createAgency('office of finance', 'Los Angeles')
-  await createAgency('secretary of state', 'New York')
-  await createAgency('department of finance', 'New York City')
-  await createAgency('department of taxation and finance', 'New York')
+  await createAgency('Secretary of State', 'Delaware')
+  await createAgency('Franchise Tax Board', 'California')
+  await createAgency('Secretary of State', 'California')
+  await createAgency('Assessor', 'San Francisco County')
+  await createAgency('Tax and Treasurer', 'San Francisco')
+  await createAgency('Assessor', 'Los Angeles County')
+  await createAgency('Office of Finance', 'Los Angeles')
+  await createAgency('Secretary of State', 'New York')
+  await createAgency('Department of Finance', 'New York City')
+  await createAgency('Department of Taxation and Finance', 'New York')
 }
 
-const createFiling = async (f, agencyName, jurisdictionName) => {
-  const jurisdiction = await Jurisdiction.findOne({ where: { name: jurisdictionName }, raw: true })
-  const agency = await Agency.findOne({ where: { name: agencyName, jurisdiction_id: jurisdiction.id }, raw: true })
+const createFiling = async ({ filing, agency, jurisdiction, due_dates }) => {
+  const j = await Jurisdiction.findOne({ where: { name: jurisdiction }, raw: true });
+  const a = await Agency.findOne({ where: { name: agency, jurisdiction_id: j.id }, raw: true });
+  const result = await Filing.create({
+    name: filing.name,
+    occurrence: filing.occurrence,
+    agency_id: a.id
+  });
 
-  await Filing.create({
-    name: f.name,
-    agency_id: agency.id,
-    due_date: f.dueDate,
-    due_date_year_end_offset_months: f.dueDateYearEndOffsetMonths,
-    due_date_reg_offset_months: f.dueDateRegOffestMonths
-  })
+  const dates = due_dates.map(d => ({ ...d, filing_id: result.id }))
+  await FilingDueDate.bulkCreate(dates)
 }
 
 const seedFilings = async () => {
   await createFiling({
-    name: 'form 1120',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: null
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Annual Report', occurrence: 'annual'},
+    agency: 'Secretary of State',
+    jurisdiction: 'Delaware',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 2, fixed_day: 1}
+    ]
+  })
 
   await createFiling({
-    name: 'form 1099',
-    dueDate: '2020-01-31',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Statement of Information', occurrence: 'annual' },
+    agency: 'Secretary of State',
+    jurisdiction: 'California',
+    due_dates: [
+      { offset_type: 'registration', month_offset: 12 }
+    ]
+  })
+
+  /*await createFiling({
+    filing: { name: 'Form 100', occurrence: 'annual' },
+    agency: 'Franchise Tax Board',
+    jurisdiction: 'California',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' }
+    ]
+  })
 
   await createFiling({
-    name: 'form 3921',
-    dueDate: '2020-01-31',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Form 100-ES', occurrence: 'multiple' },
+    agency: 'Franchise Tax Board',
+    jurisdiction: 'California',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 5, day_offset: '15' },
+      { offset_type: 'year-end', month_offset: 8, day_offset: '15' },
+    ]
+  })*/
 
   await createFiling({
-    name: 'form 1120-w',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Form 571-L', occurrence: 'annual' },
+    agency: 'Assessor',
+    jurisdiction: 'San Francisco County',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 4, fixed_day: 1 }
+    ]
+  })
 
   await createFiling({
-    name: 'form 1120-w',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 5.5,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Business License', occurrence: 'annual' },
+    agency: 'Tax and Treasurer',
+    jurisdiction: 'San Francisco',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 4, fixed_day: 31 }
+    ]
+  })
 
   await createFiling({
-    name: 'form 1120-w',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 8.5,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Payroll Tax', occurrence: 'annual' },
+    agency: 'Tax and Treasurer',
+    jurisdiction: 'San Francisco',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 1, fixed_day: 28 }
+    ]
+  })
 
   await createFiling({
-    name: 'form 1120-w',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 11.5,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Payroll Tax Estimate', occurrence: 'multiple' },
+    agency: 'Tax and Treasurer',
+    jurisdiction: 'San Francisco',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 4, fixed_day: 28 },
+      { offset_type: 'none', fixed_month: 6, fixed_day: 31 },
+      { offset_type: 'none', fixed_month: 9, fixed_day: 31 },
+    ]
+  })
 
   await createFiling({
-    name: 'form 114',
-    dueDate: '2020-04-15',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'internal revenue service', 'Federal')
+    filing: { name: 'Franchise Tax Estimate', occurrence: 'multiple' },
+    agency: 'Secretary of State',
+    jurisdiction: 'Delaware',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 6, fixed_day: 1 },
+      { offset_type: 'none', fixed_month: 9, fixed_day: 1 },
+      { offset_type: 'none', fixed_month: 12, fixed_day: 1 },
+    ]
+  })
 
   await createFiling({
-    name: 'annual report',
-    dueDate: '2020-03-01',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'secretary of state', 'Delaware')
+    filing: { name: 'Form 571-L', occurrence: 'annual' },
+    agency: 'Assessor',
+    jurisdiction: 'Los Angeles County',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 4, fixed_day: 1 },
+    ]
+  })
 
   await createFiling({
-    name: 'statement of information',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: 12,
-  }, 'secretary of state', 'California')
+    filing: { name: 'Business License', occurrence: 'annual' },
+    agency: 'Office of Finance',
+    jurisdiction: 'Los Angeles',
+    due_dates: [
+      { offset_type: 'none', fixed_month: 1, fixed_day: 28 },
+    ]
+  })
 
   await createFiling({
-    name: 'form 100',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: null,
-  }, 'franchise tax board', 'California')
+    filing: { name: 'Biennial Statement', occurrence: 'biennial' },
+    agency: 'Secretary of State',
+    jurisdiction: 'New York',
+    due_dates: [
+      { offset_type: 'registration', month_offset: 24 },
+    ]
+  })
 
   await createFiling({
-    name: 'form 100-ES',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 5.5,
-    dueDateRegOffestMonths: null,
-  }, 'franchise tax board', 'California')
+    filing: { name: 'NYC-3', occurrence: 'annual' },
+    agency: 'Department of Finance',
+    jurisdiction: 'New York City',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
+    ]
+  })
 
   await createFiling({
-    name: 'form 100-ES',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 8.5,
-    dueDateRegOffestMonths: null,
-  }, 'franchise tax board', 'California')
+    filing: { name: 'NYC-3', occurrence: 'annual' },
+    agency: 'Department of Finance',
+    jurisdiction: 'New York City',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
+    ]
+  })
 
   await createFiling({
-    name: 'form 571-L',
-    dueDate: '2020-05-01',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'assessor', 'San Francisco County')
+    filing: { name: 'NYC-3', occurrence: 'annual' },
+    agency: 'Department of Finance',
+    jurisdiction: 'New York City',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
+    ]
+  })
 
   await createFiling({
-    name: 'Business License',
-    dueDate: '2020-05-31',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'tax and treasurer', 'San Francisco')
+    filing: { name: 'Mandatory First Installment', occurrence: 'annual' },
+    agency: 'Department of Taxation and Finance',
+    jurisdiction: 'New York',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 2, day_offset: '15' },
+    ]
+  })
 
   await createFiling({
-    name: 'Payroll Tax',
-    dueDate: '2020-02-28',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'tax and treasurer', 'San Francisco')
+    filing: { name: 'CT-3 Extension', occurrence: 'annual' },
+    agency: 'Department of Taxation and Finance',
+    jurisdiction: 'New York',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
+    ]
+  })
 
   await createFiling({
-    name: 'Payroll Tax Estimate',
-    dueDate: '2020-04-30',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'tax and treasurer', 'San Francisco')
+    filing: { name: 'CT-3', occurrence: 'annual' },
+    agency: 'Department of Taxation and Finance',
+    jurisdiction: 'New York',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
+    ]
+  })
 
   await createFiling({
-    name: 'Payroll Tax Estimate',
-    dueDate: '2020-07-31',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'tax and treasurer', 'San Francisco')
+    filing: { name: 'NYC-3 Estimate', occurrence: 'annual' },
+    agency: 'Department of Finance',
+    jurisdiction: 'New York City',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
+    ]
+  })
 
+  /*
   await createFiling({
-    name: 'Payroll Tax Estimate',
-    dueDate: '2020-10-31',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'tax and treasurer', 'San Francisco')
-
-  await createFiling({
-    name: 'franchise tax estimate',
-    dueDate: '2020-06-01',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'secretary of state', 'Delaware')
-
-  await createFiling({
-    name: 'franchise tax estimate',
-    dueDate: '2020-09-01',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'secretary of state', 'Delaware')
-
-  await createFiling({
-    name: 'franchise tax estimate',
-    dueDate: '2020-12-01',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'secretary of state', 'Delaware')
-
-  await createFiling({
-    name: 'form 571-L',
-    dueDate: '2020-05-01',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'assessor', 'Los Angeles County')
-
-  await createFiling({
-    name: 'business license',
-    dueDate: '2020-02-28',
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: null,
-  }, 'office of finance', 'Los Angeles')
-
-  await createFiling({
-    name: 'biennial statement',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: null,
-    dueDateRegOffestMonths: 24,
-  }, 'secretary of state', 'New York')
-
-  await createFiling({
-    name: 'NYC-3',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: null,
-  }, 'department of finance', 'New York City')
-
-  await createFiling({
-    name: 'mandatory first installment',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 2.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of taxation and finance', 'New York')
-
-  await createFiling({
-    name: 'CT-3 extension',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of taxation and finance', 'New York')
-
-  await createFiling({
-    name: 'CT-3',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of taxation and finance', 'New York')
-
-  await createFiling({
-    name: 'NYC-3 estimate',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 3.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of finance', 'New York City')
-
-  await createFiling({
-    name: 'CT-400 estimate',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 5.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of taxation and finance', 'New York')
-
-  await createFiling({
-    name: 'CT-400 estimate',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 8.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of taxation and finance', 'New York')
-
-  await createFiling({
-    name: 'CT-400 estimate',
-    dueDate: null,
-    dueDateYearEndOffsetMonths: 11.5,
-    dueDateRegOffestMonths: 0,
-  }, 'department of taxation and finance', 'New York')
+    filing: { name: 'CT-400 Estimate', occurrence: 'multiple' },
+    agency: 'Department of Taxation and Finance',
+    jurisdiction: 'New York',
+    due_dates: [
+      { offset_type: 'year-end', month_offset: 5, day_offset: '15' },
+      { offset_type: 'year-end', month_offset: 8, day_offset: '15' },
+      { offset_type: 'year-end', month_offset: 11, day_offset: '15' },
+    ]
+  })*/
 }
 
 const createUser = async (companyName, { name, title, email, password, roles, permissions}) => {

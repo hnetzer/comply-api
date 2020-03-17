@@ -9,18 +9,20 @@ module.exports = {
           type: Sequelize.DATEONLY
         },
         company_id: {
+          allowNull: false,
           type: Sequelize.INTEGER,
-           references: {
-             model: 'companies',
-             key: 'id'
-           }
+          references: {
+            model: 'companies',
+            key: 'id'
+          }
         },
         agency_id: {
+          allowNull: false,
           type: Sequelize.INTEGER,
-           references: {
-             model: 'agencies',
-             key: 'id'
-           }
+          references: {
+            model: 'agencies',
+            key: 'id'
+          }
         },
         created_at: {
           allowNull: false,

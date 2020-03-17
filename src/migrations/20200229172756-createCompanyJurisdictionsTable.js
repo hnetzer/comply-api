@@ -7,17 +7,19 @@ module.exports = {
       {
         company_id: {
           type: Sequelize.INTEGER,
-           references: {
-             model: 'companies',
-             key: 'id'
-           }
+          allowNull: false,
+          references: {
+            model: 'companies',
+            key: 'id'
+          }
         },
         jurisdiction_id: {
           type: Sequelize.INTEGER,
-           references: {
-             model: 'jurisdictions',
-             key: 'id'
-           }
+          allowNull: false,
+          references: {
+            model: 'jurisdictions',
+            key: 'id'
+          }
         },
         created_at: {
           allowNull: false,

@@ -12,13 +12,15 @@ module.exports = {
           autoIncrement: true
         },
         name: {
-          required: true,
+          allowNull: false,
           type: Sequelize.STRING
         },
         state: {
+          allowNull: false,
           type: Sequelize.STRING,
         },
         type: {
+          allowNull: false,
           type: Sequelize.STRING,
         },
         created_at: {

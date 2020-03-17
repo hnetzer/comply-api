@@ -12,7 +12,8 @@ module.exports = {
           autoIncrement: true
         },
         offset_type: {
-          type: Sequelize.STRING,
+          type: Sequelize.ENUM('none', 'registration', 'year-end'),
+          allowNull: false,
         },
         fixed_month: {
           type: Sequelize.INTEGER
@@ -20,10 +21,10 @@ module.exports = {
         fixed_day: {
           type: Sequelize.INTEGER,
         },
-        offset_month: {
+        month_offset: {
           type: Sequelize.INTEGER
         },
-        offset_day: {
+        day_offset: {
           type: Sequelize.STRING
         },
         filing_id: {

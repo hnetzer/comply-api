@@ -13,18 +13,19 @@ module.exports = {
         },
         name: {
           type: Sequelize.STRING,
-          required: true
+          allowNull: false
         },
         occurrence: {
-          type: Sequelize.STRING,
-          required: true
+          type: Sequelize.ENUM('annual', 'multiple', 'biennial'),
+          allowNull: false
         },
         agency_id: {
           type: Sequelize.INTEGER,
-           references: {
-             model: 'agencies',
-             key: 'id'
-           }
+          allowNull: false,
+          references: {
+            model: 'agencies',
+            key: 'id'
+          }
         },
         created_at: {
           allowNull: false,
