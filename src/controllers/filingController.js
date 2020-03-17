@@ -23,6 +23,9 @@ const getFiling = async (req, res, next) => {
     }, {
       model: FilingField,
       as: 'fields'
+    }, {
+      model: FilingDueDate,
+      as: 'due_dates'
     }]
   });
 
@@ -39,6 +42,9 @@ const getAllFilings = async (req, res, next) => {
     }, {
       model: FilingField,
       as: 'fields'
+    }, {
+      model: FilingDueDate,
+      as: 'due_dates'
     }]
   })
 

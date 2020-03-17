@@ -138,7 +138,7 @@ const seedFilings = async () => {
     agency: 'Secretary of State',
     jurisdiction: 'California',
     due_dates: [
-      { offset_type: 'registration', month_offset: 12 }
+      { offset_type: 'registration', month_offset: 11 }
     ]
   })
 
@@ -206,7 +206,7 @@ const seedFilings = async () => {
     due_dates: [
       { offset_type: 'none', fixed_month: 6, fixed_day: 1 },
       { offset_type: 'none', fixed_month: 9, fixed_day: 1 },
-      { offset_type: 'none', fixed_month: 12, fixed_day: 1 },
+      { offset_type: 'none', fixed_month: 11, fixed_day: 1 },
     ]
   })
 
