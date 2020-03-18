@@ -24,7 +24,10 @@ const filing = (sequelize, DataTypes) => {
         model: models.Agency,
         include:[{
           model: models.Jurisdiction,
-        }]
+        }],
+      }, {
+        model: models.FilingDueDate,
+        as: 'due_dates'
       }],
     })
   }

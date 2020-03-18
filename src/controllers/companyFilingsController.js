@@ -29,7 +29,12 @@ const getCompanyFilings =  async (req, res, next) => {
   const agencyIds = companyAgencies.map(a => a.agencyId)
   const filings = await Filing.findAllForAgencyIds({ ids: agencyIds, companyId: company.id })
 
-  const companyFilings = await CompanyFiling.findAll({
+  const companyAgenciesRegMap = companyAgencies.reduce((acc, a) => {
+    acc[a.agency_id] = a.registration;
+    return acc;
+  }, {})
+
+  /*const companyFilings = await CompanyFiling.findAll({
     where: { company_id: companyId },
     raw: true
   })
@@ -37,12 +42,48 @@ const getCompanyFilings =  async (req, res, next) => {
   const companyFilingsMap = companyFilings.reduce((acc, c) => {
     acc[c.filing_id] = c;
     return acc
-  }, {})
+  }, {})*/
+
+  const now = moment()
+
+  const f = []
+  for (let i=0; i< filings.length; i++) {
+
+    const filing = filings[i].get({ plain: true})
+    const due_dates = filing.due_dates;
+
+    for (let j=0; j < due_dates.length; j++) {
+      const due_date = due_dates[j];
+      let calculated_due_date = null;
+
+      if (due_date.offset_type === 'none') {
+        calculated_due_date  = moment()
+          .year(now.year())
+          .month(due_date.fixed_month)
+          .date(due_date.fixed_day)
+      } else if (due_date.offset_type === 'registration') {
+        // TODO: incorporate the offset DAY
+        calculated_due_date = moment(companyAgenciesRegMap[filing.agency_id])
+          .set('year', now.year())
+          .add(due_date.month_offset, "months")
+
+      } else if (due_date.offset_type === 'year-end') {
+        // TODO: incorporate the offset DAY
+        calculated_due_date  = moment()
+          .year(now.year())
+          .month(company.year_end_month)
+          .date(company.year_end_day)
+          .add(due_date.month_offset, "months")
+      }
+
+      f.push({ ...filing, due: calculated_due_date.format('YYYY-MM-DD')})
+    }
+  }
 
 
+  /*
   const f = filings.map(f => {
     const filing = f.get({ plain: true })
-
     // If this years filing has already been started
     const companyFiling = companyFilingsMap[filing.id]
     if (companyFiling) {
@@ -51,25 +92,9 @@ const getCompanyFilings =  async (req, res, next) => {
       filing.due = companyFiling.due_date;
       return filing
     }
+  }) */
 
-    // Otherwise let's figure out the due_date
-    filing.due = filing.due_date
-    if (filing.due_date_year_end_offset_months) {
-      const offset = filing.due_date_year_end_offset_months;
-      const yearEnd = moment().year(2020).month(company.year_end_month).date(company.year_end_day);
-      yearEnd.add(offset, 'months');
-      filing.due = yearEnd.format('2020-MM-DD')
-    }
 
-    /* if (filing.due_date_reg_offset_months) {
-      const offset = filing.due_date_reg_offset_months;
-      const reg = moment(cjMap[filing.agency.jurisdiction.id].reg)
-      reg.add(offset, 'months');
-      filing.due = reg.format('2020-MM-DD')
-    } */
-
-    return filing
-  })
   return res.status(200).json(f)
 }
 

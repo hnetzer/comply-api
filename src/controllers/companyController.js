@@ -79,6 +79,9 @@ const updateOffices = async (req, res, next) => {
    // Figure out which jurisdictions to create
    const companyJurisdictions = await getCompanyJurisdictions(companyId, offices)
 
+
+   console.log('RIGHT BEFORE creating the company jurisdictions')
+   console.log(companyJurisdictions)
    // Create the jurisdictions
    await CompanyJurisdiction.bulkCreate(companyJurisdictions);
 
@@ -103,6 +106,9 @@ const getCompanyJurisdictions = async (companyId, offices) => {
     return acc
   }, {});
 
+  console.log('jurisdictionMap')
+  console.log(jurisdictionMap)
+
   const existingJId = existing.jurisdictionId
 
   const cjs = []
@@ -125,7 +131,6 @@ const getCompanyJurisdictions = async (companyId, offices) => {
     }
   });
 
-  cjs.push({ companyId: companyId, jurisdictionId: jurisdictionMap['federal']})
   return cjs;
 }
 
@@ -176,15 +181,15 @@ const updateCompanyAgency = async (req, res, next) => {
   await CompanyAgency.update({
     registration: req.body.registration,
   }, {
-    where: { 
+    where: {
       company_id: companyId,
-      agency_id: agencyId 
+      agency_id: agencyId
     },
     returning: true
   });
 
   const updatedCompanyAgency = await CompanyAgency.findOne({
-    where: { 
+    where: {
       company_id: companyId,
       agency_id: agencyId
      },
