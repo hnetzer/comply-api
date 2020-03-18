@@ -76,24 +76,16 @@ const getCompanyFilings =  async (req, res, next) => {
           .add(due_date.month_offset, "months")
       }
 
-      f.push({ ...filing, due: calculated_due_date.format('YYYY-MM-DD')})
+      f.push({
+        id: filing.id,
+        name: filing.name,
+        occurrence: filing. occurrence,
+        agency: filing.agency,
+        fields: filing.fields,
+        due: calculated_due_date.format('YYYY-MM-DD')
+      })
     }
   }
-
-
-  /*
-  const f = filings.map(f => {
-    const filing = f.get({ plain: true })
-    // If this years filing has already been started
-    const companyFiling = companyFilingsMap[filing.id]
-    if (companyFiling) {
-      filing.companyFilingId = companyFiling.id;
-      filing.status = companyFiling.status;
-      filing.due = companyFiling.due_date;
-      return filing
-    }
-  }) */
-
 
   return res.status(200).json(f)
 }
