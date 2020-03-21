@@ -5,7 +5,7 @@ import {
   getAll,
   reject,
   updateStatus,
-  getFiling
+  getCompanyFiling
 } from '../controllers/companyFilingsController';
 
 import {
@@ -23,6 +23,8 @@ import {
 import {
   getAllFilings,
   createFiling,
+  getFiling,
+  updateFiling
 } from '../controllers/filingController';
 
 const adminCheck = (req, res, next) => {
@@ -41,7 +43,7 @@ router.use(adminCheck)
 
 // Routes
 router.get('/companyfilings', getAll)
-router.get('/companyfilings/:companyFilingId', getFiling)
+router.get('/companyfilings/:companyFilingId', getCompanyFiling)
 router.put('/companyfilings/:companyFilingId/reject', reject)
 router.put('/companyfilings/:companyFilingId', updateStatus)
 
@@ -54,7 +56,9 @@ router.post('/agencies', createAgency)
 router.put('/agencies/:agencyId', updateAgency)
 
 router.get('/filings', getAllFilings)
+router.get('/filings/:filingId', getFiling)
 router.post('/filings', createFiling)
+router.put('/filings/:filingId', updateFiling)
 
 module.exports = (app) =>{
   app.use('/admin', router);

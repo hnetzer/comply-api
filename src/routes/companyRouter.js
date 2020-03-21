@@ -13,7 +13,7 @@ import {
 import {
   getCompanyFilings,
   createCompanyFiling,
-  getFiling,
+  getCompanyFiling,
   updateCompanyFiling,
   getCompanyFilingMessages
 } from '../controllers/companyFilingsController'
@@ -35,7 +35,7 @@ router.get('/:companyId/agencies', getAgencies);
 
 // TODO: change these URLS to be /companyfiling not /filing
 router.post('/:companyId/filings', createCompanyFiling);
-router.get('/:companyId/filings/:companyFilingId', getFiling);
+router.get('/:companyId/filings/:companyFilingId', getCompanyFiling);
 router.put('/:companyId/filings/:companyFilingId', updateCompanyFiling);
 
 router.get('/:companyId/companyfilings/:companyFilingId/messages', getCompanyFilingMessages);
