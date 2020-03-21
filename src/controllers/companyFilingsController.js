@@ -105,6 +105,7 @@ const getCompanyFilings = async (req, res, next) => {
   }
 
   const companyFilings = await CompanyFiling.findAll({
+    where: { company_id: companyId },
     include:[{
       model: Filing,
       include: [{
