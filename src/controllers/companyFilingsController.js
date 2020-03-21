@@ -90,7 +90,7 @@ const getFilingsForCompany =  async (req, res, next) => {
         occurrence: filing. occurrence,
         agency: filing.agency,
         fields: filing.fields,
-        due: calculated_due_date.format('YYYY-MM-DD')
+        due: calculated_due_date != null ? calculated_due_date.format('YYYY-MM-DD') : null
       })
     }
   }
