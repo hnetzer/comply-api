@@ -14,7 +14,11 @@ const {
 } = models;
 
 
-const getCompanyFilings =  async (req, res, next) => {
+
+// This fuction gets all the filings for a company that are unstarted
+// it determines what filings a company should do based on it's agencies,
+// it also calculates filing due dates based on a companies information
+const getFilingsForCompany =  async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
     return res.status(401).send()
@@ -63,9 +67,13 @@ const getCompanyFilings =  async (req, res, next) => {
           .date(due_date.fixed_day)
       } else if (due_date.offset_type === 'registration') {
         // TODO: incorporate the offset DAY
-        calculated_due_date = moment(companyAgenciesRegMap[filing.agency_id])
-          .set('year', now.year())
-          .add(due_date.month_offset, "months")
+        if (companyAgenciesRegMap[filing.agency_id] == null) {
+          calculated_due_date = null;
+        } else {
+          calculated_due_date = moment(companyAgenciesRegMap[filing.agency_id])
+            .set('year', now.year())
+            .add(due_date.month_offset, "months")
+        }
 
       } else if (due_date.offset_type === 'year-end') {
         // TODO: incorporate the offset DAY
@@ -89,6 +97,28 @@ const getCompanyFilings =  async (req, res, next) => {
 
   return res.status(200).json(f)
 }
+
+const getCompanyFilings = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  const companyFilings = await CompanyFiling.findAll({
+    include:[{
+      model: Filing,
+      include: [{
+        model: Agency,
+        include: [{
+          model: Jurisdiction
+        }]
+      }]
+    }]
+  })
+
+  return res.status(200).send(companyFilings)
+}
+
 
 // TODO: should calculate due date on the server probably
 const createCompanyFiling =  async (req, res, next) => {
@@ -258,6 +288,7 @@ const updateStatus =  async (req, res, next) => {
 }
 
 export {
+  getFilingsForCompany,
   getCompanyFilings,
   createCompanyFiling,
   getCompanyFiling,

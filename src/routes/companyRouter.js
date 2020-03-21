@@ -12,6 +12,7 @@ import {
 
 import {
   getCompanyFilings,
+  getFilingsForCompany,
   createCompanyFiling,
   getCompanyFiling,
   updateCompanyFiling,
@@ -30,13 +31,14 @@ router.put('/:companyId/agencies', updateAgencies);
 
 router.put('/:companyId/companyagencies/:agencyId', updateCompanyAgency);
 
-router.get('/:companyId/filings', getCompanyFilings);
+router.get('/:companyId/filings', getFilingsForCompany);
 router.get('/:companyId/agencies', getAgencies);
 
-// TODO: change these URLS to be /companyfiling not /filing
-router.post('/:companyId/filings', createCompanyFiling);
-router.get('/:companyId/filings/:companyFilingId', getCompanyFiling);
-router.put('/:companyId/filings/:companyFilingId', updateCompanyFiling);
+// Company Filing Endpoints
+router.get('/:companyId/companyfilings', getCompanyFilings)
+router.post('/:companyId/companyfilings', createCompanyFiling);
+router.get('/:companyId/companyfilings/:companyFilingId', getCompanyFiling);
+router.put('/:companyId/companyfilings/:companyFilingId', updateCompanyFiling);
 
 router.get('/:companyId/companyfilings/:companyFilingId/messages', getCompanyFilingMessages);
 
