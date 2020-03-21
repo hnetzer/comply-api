@@ -175,12 +175,17 @@ const getCompanyFiling =  async (req, res, next) => {
   const companyFilingId = req.params.companyFilingId
   const companyFiling = await CompanyFiling.findOne({
     where: { id: companyFilingId },
-    raw: true
+    include: [{
+      model: Filing,
+      include: [{
+        model: Agency,
+        include: [{
+          model: Jurisdiction
+        }]
+      }]
+    }]
   })
 
-  const filing = await Filing.findOneWithDetails(companyFiling.filing_id)
-
-  companyFiling.filing = filing;
   return res.status(200).send(companyFiling)
 }
 
