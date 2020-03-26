@@ -18,6 +18,8 @@ const {
 // This fuction gets all the filings for a company that are unstarted
 // it determines what filings a company should do based on it's agencies,
 // it also calculates filing due dates based on a companies information
+
+// TODO: Move this to the filings controller?
 const getFilingsForCompany =  async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
@@ -121,7 +123,6 @@ const getCompanyFilings = async (req, res, next) => {
 }
 
 
-// TODO: should calculate due date on the server probably
 const createCompanyFiling =  async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
@@ -142,7 +143,7 @@ const createCompanyFiling =  async (req, res, next) => {
   return res.status(200).send(companyFiling)
 }
 
-// TODO: should calculate due date on the server probably
+
 const updateCompanyFiling =  async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {

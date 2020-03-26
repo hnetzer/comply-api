@@ -17,6 +17,7 @@ const companyFiling = (sequelize, DataTypes) => {
   CompanyFiling.associate = models => {
     CompanyFiling.belongsTo(models.Company, { foreignKey: 'company_id' });
     CompanyFiling.belongsTo(models.Filing, { foreignKey: 'filing_id' });
+    CompanyFiling.hasMany(models.CompanyFilingField, { as: 'fields' });
   };
 
   return CompanyFiling;

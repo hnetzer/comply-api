@@ -31,6 +31,7 @@ const models = {
   FilingField: sequelize.import('./FilingField'),
   FilingDueDate: sequelize.import('./FilingDueDate'),
   CompanyFiling: sequelize.import('./CompanyFiling'),
+  CompanyFilingField: sequelize.import('./CompanyFilingField'),
   CompanyFilingMessage: sequelize.import('./CompanyFilingMessage'),
   User: sequelize.import('./User'),
   Office: sequelize.import('./Office')
