@@ -1,7 +1,7 @@
 import models from '../models';
 
 const companyFilingField = (sequelize, DataTypes) => {
-  const CompanyFilingField = sequelize.define('filing_field', {
+  const CompanyFilingField = sequelize.define('company_filing_field', {
     value: {
       type: DataTypes.STRING,
     }

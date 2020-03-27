@@ -1,3 +1,5 @@
+import models from '../models';
+
 const companyFiling = (sequelize, DataTypes) => {
   const CompanyFiling = sequelize.define('company_filing', {
     status: {
@@ -19,6 +21,19 @@ const companyFiling = (sequelize, DataTypes) => {
     CompanyFiling.belongsTo(models.Filing, { foreignKey: 'filing_id' });
     CompanyFiling.hasMany(models.CompanyFilingField, { as: 'fields' });
   };
+
+  CompanyFiling.findById = (id) => {
+    return CompanyFiling.findOne({
+      where: { id: id },
+      include: [{
+        model: models.CompanyFilingField,
+        as: 'fields',
+        include: [{
+          model: models.FilingField
+        }]
+      }]
+    })
+  }
 
   return CompanyFiling;
 };

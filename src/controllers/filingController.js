@@ -54,8 +54,6 @@ const getAllFilings = async (req, res, next) => {
 
 const createFiling = async (req, res, next) => {
     const filing = req.body
-    console.log('GOT FILING ON THE SERVER!')
-    console.log(filing)
 
     const result = await Filing.create({
       name: filing.name,
@@ -108,7 +106,6 @@ const updateFiling = async (req, res, next) => {
       // Recreate the new due dates
       const due_dates = filing.due_dates.map(d => ({ ...d, filing_id: filingId }))
       await FilingDueDate.bulkCreate(due_dates)
-
 
       //  Update the fields (it's important to maintain the field id!)
       const updatedFields = filing.fields

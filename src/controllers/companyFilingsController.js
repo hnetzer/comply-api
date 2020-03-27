@@ -6,8 +6,10 @@ const {
   Company,
   CompanyAgency,
   CompanyFiling,
+  CompanyFilingField,
   CompanyFilingMessage,
   Filing,
+  FilingField,
   Agency,
   Jurisdiction,
   User
@@ -129,16 +131,19 @@ const createCompanyFiling =  async (req, res, next) => {
     return res.status(401).send()
   }
 
-  const companyFiling = await CompanyFiling.create({
+  const { filing_id, status, due_date, fields } = req.body;
+
+  const result = await CompanyFiling.create({
     company_id: companyId,
-    filing_id: req.body.filing_id,
-    status: req.body.status,
-    field_data: req.body.field_data,
-    due_date: req.body.due_date
-  }, {
-    returning: true,
-    raw: true
+    filing_id: filing_id,
+    status: status,
+    due_date: due_date
   });
+
+  const field_data = fields.map(f => ({ ...f, company_filing_id: result.id }))
+  await CompanyFilingField.bulkCreate(field_data)
+
+  const companyFiling = await CompanyFiling.findById(result.id)
 
   return res.status(200).send(companyFiling)
 }
@@ -151,19 +156,28 @@ const updateCompanyFiling =  async (req, res, next) => {
   }
 
   const companyFilingId = req.params.companyFilingId
-
+  const { status, fields } = req.body
   await CompanyFiling.update({
     status: req.body.status,
-    field_data: req.body.field_data,
   }, {
     where: { id: companyFilingId },
   });
 
-  const companyFiling = await CompanyFiling.findOne({
-    where: { id: companyFilingId },
-    raw: true
-  })
+  for (let i=0; i < fields.length; i++) {
+    const field = fields[i]
+    console.log(`updating company filing field ${field.id}`)
+    await CompanyFilingField.update({
+      value: field.value
+    }, {
+      where: {
+        id: field.id,
+        company_filing_id: companyFilingId,
+        filing_field_id: field.filing_field_id
+      }
+    })
+  }
 
+  const companyFiling = await CompanyFiling.findById(companyFilingId)
   return res.status(200).send(companyFiling)
 }
 
@@ -175,18 +189,7 @@ const getCompanyFiling =  async (req, res, next) => {
   }
 
   const companyFilingId = req.params.companyFilingId
-  const companyFiling = await CompanyFiling.findOne({
-    where: { id: companyFilingId },
-    include: [{
-      model: Filing,
-      include: [{
-        model: Agency,
-        include: [{
-          model: Jurisdiction
-        }]
-      }]
-    }]
-  })
+  const companyFiling = await CompanyFiling.findById(companyFilingId)
 
   return res.status(200).send(companyFiling)
 }
@@ -224,6 +227,12 @@ const getAll = async (req, res, next) => {
       }]
     }, {
       model: Company
+    }, {
+      model: CompanyFilingField,
+      as: 'fields',
+      include: [{
+        model: FilingField
+      }]
     }],
   });
 
