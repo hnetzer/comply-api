@@ -31,6 +31,16 @@ const companyFiling = (sequelize, DataTypes) => {
         include: [{
           model: models.FilingField
         }]
+      }, {
+        model: models.Company
+      }, {
+        model: models.Filing,
+        include: [{
+          model: models.Agency,
+          include: [{
+            model: models.Jurisdiction
+          }]
+        }]
       }]
     })
   }
