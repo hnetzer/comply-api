@@ -165,16 +165,24 @@ const updateCompanyFiling =  async (req, res, next) => {
 
   for (let i=0; i < fields.length; i++) {
     const field = fields[i]
-    console.log(`updating company filing field ${field.id}`)
-    await CompanyFilingField.update({
-      value: field.value
-    }, {
-      where: {
-        id: field.id,
+    if (field.id) {
+      await CompanyFilingField.update({
+        value: field.value
+      }, {
+        where: {
+          id: field.id,
+          company_filing_id: companyFilingId,
+          filing_field_id: field.filing_field_id
+        }
+      })
+    } else {
+      // This could be a new field that we've added
+      await CompanyFilingField.create({
+        value: field.value,
         company_filing_id: companyFilingId,
         filing_field_id: field.filing_field_id
-      }
-    })
+      })
+    }
   }
 
   const companyFiling = await CompanyFiling.findById(companyFilingId)
