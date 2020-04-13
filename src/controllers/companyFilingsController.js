@@ -258,20 +258,7 @@ const reject = async (req, res, next) => {
     { where: { id: companyFilingId } }
   );
 
-  const companyFiling = await CompanyFiling.findOne({
-    where: { id: companyFilingId },
-    include: [{
-      model: Filing,
-      include:[{
-        model: Agency,
-        include: [{
-          model: Jurisdiction,
-        }]
-      }]
-    }, {
-      model: Company
-    }],
-  });
+  const companyFiling = await CompanyFiling.findById(companyFilingId)
 
   const { reason } = req.body
   await CompanyFilingMessage.create({
@@ -293,20 +280,7 @@ const updateStatus =  async (req, res, next) => {
     where: { id: companyFilingId },
   });
 
-  const companyFiling = await CompanyFiling.findOne({
-    where: { id: companyFilingId },
-    include: [{
-      model: Filing,
-      include:[{
-        model: Agency,
-        include: [{
-          model: Jurisdiction,
-        }]
-      }]
-    }, {
-      model: Company
-    }],
-  });
+  const companyFiling = await CompanyFiling.findById(companyFilingId)
 
   return res.status(200).send(companyFiling)
 }
