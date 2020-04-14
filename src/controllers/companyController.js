@@ -233,6 +233,27 @@ const getAgencies = async (req, res, next) => {
  }
 }
 
+// Admin ONLY
+const getCompanies = async (req, res, next) => {
+  try {
+
+    const companies = await Company.findAll({
+      include: [{
+        model: Agency
+      }, {
+        model: User
+      }, {
+        model: Office
+      }]
+    })
+
+   return res.status(200).json(companies)
+ } catch(err) {
+   console.log(err)
+   return res.status(500).send()
+ }
+}
+
 
 export {
   getCompany,
@@ -240,5 +261,8 @@ export {
   updateOffices,
   updateAgencies,
   getAgencies,
-  updateCompanyAgency
+  updateCompanyAgency,
+
+  // admin
+  getCompanies
 }

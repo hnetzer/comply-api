@@ -27,6 +27,10 @@ import {
   updateFiling
 } from '../controllers/filingController';
 
+import {
+  getCompanies
+} from '../controllers/companyController';
+
 const adminCheck = (req, res, next) => {
   const { roles, permissions } = req.user
   if (roles.indexOf('admin') === -1) {
@@ -59,6 +63,8 @@ router.get('/filings', getAllFilings)
 router.get('/filings/:filingId', getFiling)
 router.post('/filings', createFiling)
 router.put('/filings/:filingId', updateFiling)
+
+router.get('/companies', getCompanies)
 
 module.exports = (app) =>{
   app.use('/admin', router);
