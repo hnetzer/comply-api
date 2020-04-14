@@ -28,7 +28,8 @@ import {
 } from '../controllers/filingController';
 
 import {
-  getCompanies
+  getCompanies,
+  adminGetCompany
 } from '../controllers/companyController';
 
 const adminCheck = (req, res, next) => {
@@ -65,6 +66,7 @@ router.post('/filings', createFiling)
 router.put('/filings/:filingId', updateFiling)
 
 router.get('/companies', getCompanies)
+router.get('/companies/:companyId', adminGetCompany)
 
 module.exports = (app) =>{
   app.use('/admin', router);

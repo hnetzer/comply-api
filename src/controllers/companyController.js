@@ -236,7 +236,6 @@ const getAgencies = async (req, res, next) => {
 // Admin ONLY
 const getCompanies = async (req, res, next) => {
   try {
-
     const companies = await Company.findAll({
       include: [{
         model: Agency
@@ -254,6 +253,30 @@ const getCompanies = async (req, res, next) => {
  }
 }
 
+const adminGetCompany = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  try {
+    const company = await Company.findOne({
+      where: { id: companyId },
+      include: [{
+        model: Agency,
+        include: [{
+          model: Jurisdiction
+        }]
+      }, {
+        model: User
+      }, {
+        model: Office
+      }]
+    })
+
+   return res.status(200).json(company)
+ } catch(err) {
+   console.log(err)
+   return res.status(500).send()
+ }
+}
+
 
 export {
   getCompany,
@@ -264,5 +287,6 @@ export {
   updateCompanyAgency,
 
   // admin
-  getCompanies
+  getCompanies,
+  adminGetCompany
 }
