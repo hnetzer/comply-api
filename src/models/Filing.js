@@ -8,6 +8,9 @@ const filing = (sequelize, DataTypes) => {
     },
     occurrence: {
       type: DataTypes.ENUM('annual', 'multiple', 'biennial')
+    },
+    disabled: {
+      type: DataTypes.BOOLEAN,
     }
   }, { underscored: true });
 
@@ -19,7 +22,7 @@ const filing = (sequelize, DataTypes) => {
 
   Filing.findAllForAgencyIds = ({ ids }) => {
     return Filing.findAll({
-      where: { agency_id: { [Op.in]: ids } },
+      where: { agency_id: { [Op.in]: ids }, disabled: false },
       include: [{
         model: models.Agency,
         include:[{

@@ -34,6 +34,7 @@ const getFiling = async (req, res, next) => {
 
 const getAllFilings = async (req, res, next) => {
   const filings = await Filing.findAll({
+    where: { disabled: false },
     include: [{
       model: Agency,
       include: [{
