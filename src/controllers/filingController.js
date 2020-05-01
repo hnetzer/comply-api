@@ -156,10 +156,27 @@ const updateFiling = async (req, res, next) => {
     return res.status(200).json(updatedFiling)
 }
 
+const deleteFiling = async (req, res, next) => {
+  const filingId = req.params.filingId
+  try {
+    await Filing.update({
+      disabled: true
+    }, {
+      where: { id: filingId }
+    });
+
+    return res.status(200).send({})
+
+  } catch(err) {
+    console.log(err)
+    return res.status(500).send()
+  }
+}
 
 export {
   getFiling,
   getAllFilings,
   createFiling,
-  updateFiling
+  updateFiling,
+  deleteFiling
 }

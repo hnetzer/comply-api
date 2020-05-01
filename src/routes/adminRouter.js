@@ -24,7 +24,8 @@ import {
   getAllFilings,
   createFiling,
   getFiling,
-  updateFiling
+  updateFiling,
+  deleteFiling
 } from '../controllers/filingController';
 
 import {
@@ -64,6 +65,7 @@ router.get('/filings', getAllFilings)
 router.get('/filings/:filingId', getFiling)
 router.post('/filings', createFiling)
 router.put('/filings/:filingId', updateFiling)
+router.delete('/filings/:filingId', deleteFiling)
 
 router.get('/companies', getCompanies)
 router.get('/companies/:companyId', adminGetCompany)
