@@ -7,11 +7,12 @@ const {
   User
 } = models;
 
+const JWT_SECRET = process.env.JWT_SECRET
 
 // TODO: Move JWT secret to ENV variable
 const createAccount = async (req, res, next) => {
 
-  const { user, company } = req.body;
+  const user = req.body;
   const count = await User.count({ where: { email: user.email } });
   if (count > 0) {
     return res.status(400).json({
@@ -20,16 +21,18 @@ const createAccount = async (req, res, next) => {
   }
 
   const comp = await Company.create({
-    name: company.name,
-    phone: company.phone
+    name: user.company,
   });
 
   // TODO: Add validation here
   await User.create({
-    name: user.name,
-    title: user.role,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    title: user.title,
     email: user.email,
     password: user.password,
+    roles: ['client'],
+    permission: [],
     company_id: comp.id
   })
 
@@ -46,7 +49,7 @@ const createAccount = async (req, res, next) => {
     }
 
     // now generate a signed json web token with the user object
-    const token = jwt.sign(newUser, 'your_jwt_secret')
+    const token = jwt.sign(newUser, JWT_SECRET)
     return res.json({
       user: newUser,
       token: token,
@@ -55,7 +58,6 @@ const createAccount = async (req, res, next) => {
   })
 }
 
-// TODO: Move JWT secret to ENV variable
 const login = async (req, res, next) => {
   const user = req.user
   if (!user) {
@@ -67,7 +69,7 @@ const login = async (req, res, next) => {
       res.status(500).send();
     }
 
-    const token = jwt.sign(user, 'your_jwt_secret')
+    const token = jwt.sign(user, JWT_SECRET)
     return res.json({
       user: user,
       token: token

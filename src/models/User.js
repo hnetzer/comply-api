@@ -2,9 +2,14 @@ import bcrypt from 'bcrypt';
 
 const user = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
-    name: {
+    name: { //NOTE: this field is deprecated
       type: DataTypes.STRING,
-      required: true
+    },
+    first_name: {
+      type: DataTypes.STRING,
+    },
+    last_name: {
+      type: DataTypes.STRING,
     },
     title: {
       type: DataTypes.STRING,
@@ -16,7 +21,7 @@ const user = (sequelize, DataTypes) => {
     },
     password: {
       type: DataTypes.STRING,
-      required: true
+      allowNull: false
     },
     roles: {
       type: DataTypes.ARRAY(DataTypes.STRING),
