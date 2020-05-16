@@ -15,11 +15,11 @@
   "devDependencies": {
     "@babel/cli": "^7.7.7",
     "@babel/core": "^7.7.7",
-    "@babel/node": "^7.7.7",
     "@babel/preset-env": "^7.7.7",
     "nodemon": "^2.0.2"
   },
   "dependencies": {
+    "@babel/node": "^7.7.7",
     "@babel/polyfill": "^7.7.0",
     "async": "^3.2.0",
     "bcrypt": "^3.0.7",

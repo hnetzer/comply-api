@@ -9,6 +9,8 @@ const ExtractJWT = PassportJWT.ExtractJwt;
 import models from './models';
 const { User } = models;
 
+const JWT_SECRET = process.env.JWT_SECRET
+
 // Setup Passport
 let localStrategy = new LocalStrategy(async (username, password, done) => {
   let user;
@@ -32,7 +34,7 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
 });
 
 
-const settings = { jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(), secretOrKey: 'your_jwt_secret'}
+const settings = { jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(), secretOrKey: JWT_SECRET }
 let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
   let user;
   try {

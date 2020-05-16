@@ -12,11 +12,16 @@
     },
     "NPM_CONFIG_PRODUCTION": {
       "value": false
+    },
+    "JWT_SECRET": {
+      "required": true,
+      "generator": "secret"
     }
   },
   "buildpacks": [
     {
       "url": "heroku/nodejs"
     }
-  ]
+  ],
+  "addons": [ "heroku-postgresql" ]
 }
