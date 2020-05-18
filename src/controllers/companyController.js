@@ -34,24 +34,18 @@ const getCompany = async (req, res, next) => {
   return res.status(200).json(company)
 }
 
-  // TODO: make sure the user owns that company
 const updateCompany = async (req, res, next) => {
   const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
   const options = {
     where: { id: companyId }
   }
 
   await Company.update(req.body, options);
   const company = await Company.findOne(options);
-
-  const jurisdiction = req.body.jurisdiction
-  if(jurisdiction) {
-    const j = await Jurisdiction.findOne({
-      where: { name: req.body.jurisdiction.name }
-    });
-
-    await company.setJurisdictions([j])
-  }
 
   const c = await Company.findOne({ where: { id: req.user.company_id }, raw: true });
   return res.status(200).json(c)

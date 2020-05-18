@@ -19,6 +19,9 @@ const company = (sequelize, DataTypes) => {
     year_end_day: {
       type: DataTypes.INTEGER,
     },
+    formation_state: {
+      type: DataTypes.STRING
+    }
   }, { underscored: true });
 
   Company.associate = models => {
