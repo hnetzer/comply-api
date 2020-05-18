@@ -90,49 +90,38 @@ const updateOffices = async (req, res, next) => {
 
 // Helper function to map office locations -> jurisdictions;
 const getCompanyJurisdictions = async (companyId, offices) => {
-  const existing = await CompanyJurisdiction.findOne({
-    where: { companyId: companyId },
-    raw: true
-  });
   const jurisdictions = await Jurisdiction.findAll({});
   const jurisdictionMap = jurisdictions.reduce((acc, j) => {
     acc[j.name.toLowerCase()] = j.id;
     return acc
   }, {});
 
-  console.log('jurisdictionMap')
-  console.log(jurisdictionMap)
-
-  const existingJId = existing.jurisdictionId
-
   const cjs = []
   offices.forEach(office => {
     if (office.city.toLowerCase().trim() === 'san francisco') {
-      addCJHelper(companyId, 'san francisco', existingJId, jurisdictionMap, cjs)
-      addCJHelper(companyId, 'san francisco county', existingJId, jurisdictionMap, cjs)
-      addCJHelper(companyId, 'california', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'san francisco', jurisdictionMap, cjs)
+      addCJHelper(companyId, 'san francisco county', jurisdictionMap, cjs)
+      addCJHelper(companyId, 'california', jurisdictionMap, cjs)
     }
 
     if (office.city.toLowerCase().trim() === 'los angeles') {
-      addCJHelper(companyId, 'los angeles', existingJId, jurisdictionMap, cjs)
-      addCJHelper(companyId, 'los angeles county', existingJId, jurisdictionMap, cjs)
-      addCJHelper(companyId, 'california', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'los angeles', jurisdictionMap, cjs)
+      addCJHelper(companyId, 'los angeles county', jurisdictionMap, cjs)
+      addCJHelper(companyId, 'california', jurisdictionMap, cjs)
     }
 
     if (office.city.toLowerCase().trim() === 'new york') {
-      addCJHelper(companyId, 'new york city', existingJId, jurisdictionMap, cjs)
-      addCJHelper(companyId, 'new york', existingJId, jurisdictionMap, cjs)
+      addCJHelper(companyId, 'new york city', jurisdictionMap, cjs)
+      addCJHelper(companyId, 'new york', jurisdictionMap, cjs)
     }
   });
 
   return cjs;
 }
 
-const addCJHelper = (companyId, jName, existingJId, map, array) => {
+const addCJHelper = (companyId, jName, map, array) => {
   const jId = map[jName];
-  if(jId != existingJId) {
-    array.push({ companyId: companyId, jurisdictionId: jId})
-  }
+  array.push({ companyId: companyId, jurisdictionId: jId})
 }
 
 const updateAgencies = async (req, res, next) => {
