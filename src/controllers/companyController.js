@@ -19,7 +19,13 @@ const getCompany = async (req, res, next) => {
     return res.status(401).send()
   }
 
-  const company = await Company.findOne({ where: { id: companyId }, raw: true });
+  const company = await Company.findOne({
+    where: { id: companyId },
+    include: [{
+      model: Office
+    }]
+  });
+
   const agencyIds = await CompanyAgency.findAll({
     where: { company_id: companyId },
     raw: true,
@@ -54,6 +60,9 @@ const updateCompany = async (req, res, next) => {
 // TODO: Check if th user owns the company / offices
 const updateOffices = async (req, res, next) => {
   const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
   const companyOffices = req.body.offices;
   const company = await Company.findOne({ where: { id: companyId } });
 

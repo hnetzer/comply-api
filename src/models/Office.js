@@ -1,20 +1,22 @@
 const office = (sequelize, DataTypes) => {
   const Office = sequelize.define('office', {
+    type: {
+      type: DataTypes.STRING,
+    },
     address: {
       type: DataTypes.STRING,
-      required: true
     },
     city: {
       type: DataTypes.STRING,
-      required: true
+      allowNull: false
     },
     state: {
       type: DataTypes.STRING,
-      required: true
+      allowNull: false
     },
     zip: {
       type: DataTypes.STRING,
-      required: true
+      allowNull: false
     },
   }, { underscored: true });
 
