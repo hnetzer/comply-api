@@ -155,6 +155,13 @@ const updateAgencies = async (req, res, next) => {
      raw: true
    })
 
+   // Mark the company as being onboarded
+   Company.update({
+     onboarded: true
+   }, {
+     where: { id: companyId }
+   })
+
    return res.status(200).json(agencies)
  } catch(err) {
    console.log(err)

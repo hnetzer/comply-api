@@ -64,15 +64,22 @@ const login = async (req, res, next) => {
     return res.status(401).send();
   }
 
-  req.login(user, { session: false }, err => {
+  req.login(user, { session: false }, async (err) => {
     if (err) {
       res.status(500).send();
     }
 
+    const company = await Company.findOne({
+      where: {
+        id: user.company_id
+      }
+    })
+
     const token = jwt.sign(user, JWT_SECRET)
     return res.json({
       user: user,
-      token: token
+      token: token,
+      company: company
     });
   });
 }
