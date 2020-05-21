@@ -21,6 +21,9 @@ const company = (sequelize, DataTypes) => {
     },
     formation_state: {
       type: DataTypes.STRING
+    },
+    onboarded: {
+      type: DataTypes.BOOLEAN
     }
   }, { underscored: true });
 
