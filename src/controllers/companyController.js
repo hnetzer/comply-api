@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import moment from 'moment';
+import GoogleGeocode from '../services/GoogleGeocode'
 import models, { sequelize } from '../models';
 
 const {
@@ -57,7 +58,7 @@ const updateCompany = async (req, res, next) => {
   return res.status(200).json(c)
 }
 
-// TODO: Check if th user owns the company / offices
+
 const updateOffices = async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
@@ -67,71 +68,60 @@ const updateOffices = async (req, res, next) => {
   const company = await Company.findOne({ where: { id: companyId } });
 
   try {
-   // Delete all of the existing offices first
-   await Office.destroy({ where: { company_id: companyId } })
 
-  // Create the new offices
+   // First figure out what new Jurisdictions need
+   // to be created from the offices addresses
+   const jurisdictionMap = {};
+   for (let i=0; i < companyOffices.length; i++) {
+     const office = companyOffices[i];
+
+     // Get the address components from Google API
+     const addressComponents = await GoogleGeocode.getAddressComponents(office);
+     const { city, county, state } = GoogleGeocode.parseAddressComponents(addressComponents);
+
+     if (state) {
+       const j = await Jurisdiction.findOrCreateState(state)
+       jurisdictionMap[j.id] = true;
+
+       if (city) {
+         const j = await Jurisdiction.findOrCreateCity(city, state)
+         jurisdictionMap[j.id] = true;
+       }
+
+       if (county) {
+         const j = await Jurisdiction.findOrCreateCounty(county, state)
+         jurisdictionMap[j.id] = true;
+       }
+     }
+   }
+
+   // Delete and create all of the office locations
+   // TODO: should we be updating these instead?
+   await Office.destroy({ where: { company_id: companyId } })
    await Office.bulkCreate(companyOffices.map(office => {
      office.company_id = companyId;
      return office
    }))
 
-   // Get our newly created offices
-   const offices = await Office.findAll({ where: { company_id: companyId }, raw: true });
-
-   // Figure out which jurisdictions to create
-   const companyJurisdictions = await getCompanyJurisdictions(companyId, offices)
-
-
-   console.log('RIGHT BEFORE creating the company jurisdictions')
-   console.log(companyJurisdictions)
-   // Create the jurisdictions
+   // Delete and create all of the new company jurisdictions
+   const jurisdictionIds = Object.keys(jurisdictionMap);
+   const companyJurisdictions = jurisdictionIds.map(jId => ({
+     jurisdictionId: jId,
+     companyId: companyId
+   }))
+   await CompanyJurisdiction.destroy({ where: { company_id: companyId } })
    await CompanyJurisdiction.bulkCreate(companyJurisdictions);
 
+   // Get our newly created offices
+   const offices = await Office.findAll({ where: { company_id: companyId }});
    return res.status(200).json(offices)
 
  } catch(err) {
-   console.log(err)
+   console.error(err)
    return res.status(500).send()
  }
 }
 
-
-// Helper function to map office locations -> jurisdictions;
-const getCompanyJurisdictions = async (companyId, offices) => {
-  const jurisdictions = await Jurisdiction.findAll({});
-  const jurisdictionMap = jurisdictions.reduce((acc, j) => {
-    acc[j.name.toLowerCase()] = j.id;
-    return acc
-  }, {});
-
-  const cjs = []
-  offices.forEach(office => {
-    if (office.city.toLowerCase().trim() === 'san francisco') {
-      addCJHelper(companyId, 'san francisco', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'san francisco county', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'california', jurisdictionMap, cjs)
-    }
-
-    if (office.city.toLowerCase().trim() === 'los angeles') {
-      addCJHelper(companyId, 'los angeles', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'los angeles county', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'california', jurisdictionMap, cjs)
-    }
-
-    if (office.city.toLowerCase().trim() === 'new york') {
-      addCJHelper(companyId, 'new york city', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'new york', jurisdictionMap, cjs)
-    }
-  });
-
-  return cjs;
-}
-
-const addCJHelper = (companyId, jName, map, array) => {
-  const jId = map[jName];
-  array.push({ companyId: companyId, jurisdictionId: jId})
-}
 
 const updateAgencies = async (req, res, next) => {
   const companyId = req.params.companyId;
