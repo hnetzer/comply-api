@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const GOOGLE_API_KEY = "AIzaSyCbN2Mnp6f3QTborwTZUu8saFLP_l6ph5o"
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 const GOOGLE_GEOCODE_BASE_API = "https://maps.googleapis.com/maps/api/geocode/json"
 
 
