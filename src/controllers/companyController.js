@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import fetch from 'node-fetch';
 import moment from 'moment';
 import models, { sequelize } from '../models';
 
@@ -11,6 +12,8 @@ const {
   CompanyAgency,
   Agency,
 } = models;
+
+const GOOGLE_API_KEY = "AIzaSyCbN2Mnp6f3QTborwTZUu8saFLP_l6ph5o"
 
 
 const getCompany = async (req, res, next) => {
@@ -57,7 +60,7 @@ const updateCompany = async (req, res, next) => {
   return res.status(200).json(c)
 }
 
-// TODO: Check if th user owns the company / offices
+
 const updateOffices = async (req, res, next) => {
   const companyId = req.params.companyId;
   if (req.user.company_id != companyId) {
@@ -66,9 +69,36 @@ const updateOffices = async (req, res, next) => {
   const companyOffices = req.body.offices;
   const company = await Company.findOne({ where: { id: companyId } });
 
+
+  const BASE_API = "https://maps.googleapis.com/maps/api/geocode/json"
+
   try {
    // Delete all of the existing offices first
    await Office.destroy({ where: { company_id: companyId } })
+
+   companyOffices.forEach(async (office, index) =>{
+     const { address, city, state, zip} = office;
+     const search = `${address} ${city}, ${state} ${zip}`
+     const response = await fetch(`${BASE_API}?address=${search}&key=${GOOGLE_API_KEY}`)
+
+     // Check for error codes
+     if (response.status !== 200) {
+       let error = await response.json()
+       console.log("Error getting address details from Google")
+       console.error(error)
+       return;
+     }
+
+     let searchResponse = await response.json()
+     console.log(`Google API responded with ${searchResponse.results.length} results`)
+     searchResponse.results.forEach((result, index) => {
+       console.log(`Address components for result ${index}`)
+       console.log(result.formatted_address)
+       result.address_components.forEach((component, index) => {
+         console.log(`${component.types[0]}: ${component.long_name}`)
+       })
+     })
+   })
 
   // Create the new offices
    await Office.bulkCreate(companyOffices.map(office => {
