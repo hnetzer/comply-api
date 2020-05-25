@@ -76,9 +76,13 @@ const updateOffices = async (req, res, next) => {
    // Delete all of the existing offices first
    await Office.destroy({ where: { company_id: companyId } })
 
-   companyOffices.forEach(async (office, index) =>{
-     const { address, city, state, zip} = office;
-     const search = `${address} ${city}, ${state} ${zip}`
+   // Create a map to dedupe all company jurisdictions
+   const jurisdictionMap = {};
+
+   for (let i=0; i < companyOffices.length; i++) {
+     const office = companyOffices[i];
+
+     const search = `${office.address} ${office.city}, ${office.state} ${office.zip}`
      const response = await fetch(`${BASE_API}?address=${search}&key=${GOOGLE_API_KEY}`)
 
      // Check for error codes
@@ -90,15 +94,56 @@ const updateOffices = async (req, res, next) => {
      }
 
      let searchResponse = await response.json()
+     if (searchResponse.status != "OK") {
+       console.log("Error response from Google Geocode API")
+       console.error(searchResponse.status)
+       return;
+     }
+
      console.log(`Google API responded with ${searchResponse.results.length} results`)
-     searchResponse.results.forEach((result, index) => {
-       console.log(`Address components for result ${index}`)
-       console.log(result.formatted_address)
-       result.address_components.forEach((component, index) => {
-         console.log(`${component.types[0]}: ${component.long_name}`)
-       })
-     })
-   })
+
+     const result = searchResponse.results[0];
+     console.log(`Only checking the first result: ${result.formatted_address}`)
+
+     const { city, county, state } = parseAddressComponents(result.address_components)
+     console.log(`city: ${city}, county: ${county}, state: ${state}`)
+
+     if (state != null) {
+       const params = { name: state, type: 'state', state: state }
+       const [instance, wasCreated] = await Jurisdiction.findOrCreate({
+         where: params
+       });
+       jurisdictionMap[instance.id] = true;
+
+       if (wasCreated) {
+         console.log('Created a new jurisdiction', params)
+       }
+     }
+
+     if (city != null && state != null) {
+       const params = { name: city, type: 'city', state: state };
+       const [instance, wasCreated] = await Jurisdiction.findOrCreate({
+         where: params
+       });
+       jurisdictionMap[instance.id] = true;
+       if (wasCreated) {
+         console.log('Created a new jurisdiction', params)
+       }
+     }
+
+     if (county != null && state != null) {
+       const params = { name: county, type: 'county', state: state }
+       const [instance, wasCreated] = await Jurisdiction.findOrCreate({
+         where: params
+       });
+       jurisdictionMap[instance.id] = true;
+       if (wasCreated) {
+         console.log('Created a new jurisdiction', params)
+       }
+     }
+   }
+
+   console.log('Got all the way to creating the offices!!')
 
   // Create the new offices
    await Office.bulkCreate(companyOffices.map(office => {
@@ -110,8 +155,14 @@ const updateOffices = async (req, res, next) => {
    const offices = await Office.findAll({ where: { company_id: companyId }, raw: true });
 
    // Figure out which jurisdictions to create
-   const companyJurisdictions = await getCompanyJurisdictions(companyId, offices)
+   const jurisdictionIds = Object.keys(jurisdictionMap);
+   const companyJurisdictions = jurisdictionIds.map(jId => ({
+     jurisdictionId: jId,
+     companyId: companyId
+   }))
 
+   // Delete all of the existing company jurisdictrions first
+   await CompanyJurisdiction.destroy({ where: { company_id: companyId } })
 
    console.log('RIGHT BEFORE creating the company jurisdictions')
    console.log(companyJurisdictions)
@@ -127,41 +178,41 @@ const updateOffices = async (req, res, next) => {
 }
 
 
-// Helper function to map office locations -> jurisdictions;
-const getCompanyJurisdictions = async (companyId, offices) => {
-  const jurisdictions = await Jurisdiction.findAll({});
-  const jurisdictionMap = jurisdictions.reduce((acc, j) => {
-    acc[j.name.toLowerCase()] = j.id;
-    return acc
-  }, {});
+const parseAddressComponents = (address_components) => {
+  let city = null;
+  let state = null;
+  let county = null;
 
-  const cjs = []
-  offices.forEach(office => {
-    if (office.city.toLowerCase().trim() === 'san francisco') {
-      addCJHelper(companyId, 'san francisco', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'san francisco county', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'california', jurisdictionMap, cjs)
+  address_components.forEach((component, index) => {
+    for (let i=0; i < component.types.length; i++) {
+      const type = component.types[i];
+
+      // Check for the city
+      if (type === "locality") {
+        city = component.long_name;
+        break;
+      }
+      // Check for the county
+      if (type === "administrative_area_level_2") {
+        county = component.long_name;
+        break;
+      }
+
+      //  Check for the state
+      if (type === "administrative_area_level_1") {
+        state = component.long_name;
+        break;
+      }
     }
+  })
 
-    if (office.city.toLowerCase().trim() === 'los angeles') {
-      addCJHelper(companyId, 'los angeles', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'los angeles county', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'california', jurisdictionMap, cjs)
-    }
-
-    if (office.city.toLowerCase().trim() === 'new york') {
-      addCJHelper(companyId, 'new york city', jurisdictionMap, cjs)
-      addCJHelper(companyId, 'new york', jurisdictionMap, cjs)
-    }
-  });
-
-  return cjs;
+  return {
+    city: city,
+    county: county,
+    state: state
+  };
 }
 
-const addCJHelper = (companyId, jName, map, array) => {
-  const jId = map[jName];
-  array.push({ companyId: companyId, jurisdictionId: jId})
-}
 
 const updateAgencies = async (req, res, next) => {
   const companyId = req.params.companyId;
