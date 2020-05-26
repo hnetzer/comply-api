@@ -3,11 +3,15 @@ const companyAgency = (sequelize, DataTypes) => {
     registration: {
       type: DataTypes.DATEONLY,
     },
+    registered: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    }
   }, { underscored: true });
 
   CompanyAgency.associate = models => {
-    CompanyAgency.belongsTo(models.Agency, {foreignKey: 'agency_id'});
-    CompanyAgency.belongsTo(models.Company, {foreignKey: 'company_id'});
+    CompanyAgency.belongsTo(models.Agency, { foreignKey: 'agency_id' });
+    CompanyAgency.belongsTo(models.Company, { foreignKey: 'company_id' });
   };
 
   return CompanyAgency;

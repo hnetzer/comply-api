@@ -5,10 +5,13 @@ import {
   updateCompany,
   updateOffices,
   getCompany,
-  updateAgencies,
-  getAgencies,
-  updateCompanyAgency
 } from '../controllers/companyController'
+
+import {
+  updateCompanyAgencies,
+  getCompanyAgencies,
+  updateCompanyAgency,
+} from '../controllers/companyAgencyController'
 
 import {
   getCompanyFilings,
@@ -27,12 +30,13 @@ router.use(passport.authenticate('jwt', { session: false }));
 router.get('/:companyId', getCompany)
 router.put('/:companyId', updateCompany);
 router.put('/:companyId/offices', updateOffices);
-router.put('/:companyId/agencies', updateAgencies);
 
+router.get('/:companyId/companyagencies', getCompanyAgencies);
+router.put('/:companyId/companyagencies', updateCompanyAgencies);
 router.put('/:companyId/companyagencies/:agencyId', updateCompanyAgency);
 
+
 router.get('/:companyId/filings', getFilingsForCompany);
-router.get('/:companyId/agencies', getAgencies);
 
 // Company Filing Endpoints
 router.get('/:companyId/companyfilings', getCompanyFilings)
