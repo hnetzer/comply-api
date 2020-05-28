@@ -28,32 +28,40 @@ const getFilingsForCompany =  async (req, res, next) => {
     return res.status(401).send()
   }
 
+  const startDate = '2020-01-01' // req.params.startDate
+  const endDate = '2021-12-31' // req.params.endDate
+
+
   const company = await Company.findOne({ where: { id: companyId } });
   const companyAgencies = await CompanyAgency.findAll({
-    where: { company_id: companyId },
+    where: { company_id: companyId, registered: true },
     raw: true,
   })
 
   const agencyIds = companyAgencies.map(a => a.agencyId)
   const filings = await Filing.findAllForAgencyIds({ ids: agencyIds, companyId: company.id })
-
   const companyAgenciesRegMap = companyAgencies.reduce((acc, a) => {
     acc[a.agency_id] = a.registration;
     return acc;
   }, {})
 
-  /*const companyFilings = await CompanyFiling.findAll({
-    where: { company_id: companyId },
-    raw: true
+  const filingsInOneQuery = await Filing.findAll({
+    include: [{
+      model: Agency,
+      required: true,
+      include: [{
+        model: CompanyAgency,
+        required: true,
+        where: { company_id: companyId  }
+      }]
+    }],
   })
 
-  const companyFilingsMap = companyFilings.reduce((acc, c) => {
-    acc[c.filing_id] = c;
-    return acc
-  }, {})*/
+  console.log('Filings in one query: ', filingsInOneQuery.length)
+  console.log('Filings: ', filings.length)
+
 
   const now = moment()
-
   const f = []
   for (let i=0; i< filings.length; i++) {
 
@@ -91,7 +99,7 @@ const getFilingsForCompany =  async (req, res, next) => {
       f.push({
         id: filing.id,
         name: filing.name,
-        occurrence: filing. occurrence,
+        occurrence: filing.occurrence,
         agency: filing.agency,
         fields: filing.fields,
         due: calculated_due_date != null ? calculated_due_date.format('YYYY-MM-DD') : null
