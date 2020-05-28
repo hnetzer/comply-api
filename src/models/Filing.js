@@ -20,14 +20,18 @@ const filing = (sequelize, DataTypes) => {
     Filing.hasMany(models.FilingDueDate, { as: 'due_dates' });
   };
 
-  Filing.findAllForAgencyIds = ({ ids }) => {
+  Filing.findAllForCompany = (companyId) => {
     return Filing.findAll({
-      where: { agency_id: { [Op.in]: ids }, disabled: false },
       include: [{
         model: models.Agency,
-        include:[{
-          model: models.Jurisdiction,
-        }],
+        required: true,
+        include: [{
+          model: models.CompanyAgency,
+          required: true,
+          where: { company_id: companyId  }
+        }, {
+          model: models.Jurisdiction
+        }]
       }, {
         model: models.FilingDueDate,
         as: 'due_dates'
