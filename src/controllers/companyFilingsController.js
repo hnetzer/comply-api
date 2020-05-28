@@ -29,8 +29,13 @@ const getFilingsForCompany =  async (req, res, next) => {
     return res.status(401).send()
   }
 
-  const startDate = '2020-01-01' // req.params.startDate
-  const endDate = '2021-12-31' // req.params.endDate
+  // Override default start and end dates with query params
+  let start = moment()
+  let end = moment().add(1, 'y')
+  if (req.params.startDate && req.params.endDate) {
+    start = moment(req.params.startDate)
+    end = moment(req.params.endDate)
+  }
 
   const company = await Company.findOne({ where: { id: companyId } });
   const companyAgencies = await CompanyAgency.findAll({
@@ -43,55 +48,55 @@ const getFilingsForCompany =  async (req, res, next) => {
   }, {})
 
   const filings = await Filing.findAllForCompany(companyId)
-
-  const start = moment(startDate)
-  const end = moment(endDate)
-
   const companyFilings = [];
 
-  // Let's loop through all the filings for all the years asked for
+  // Loop through each year that we might need to consider
   for (let year=start.year(); year <= end.year(); year++) {
     for (let i=0; i< filings.length; i++) {
-
       const filing = filings[i].get({ plain: true})
       const { due_dates } = filing;
 
-      // Loop through the multiple possible due dates for each filing
+      // Check the due dates schedule of each filing
       for (let j=0; j < due_dates.length; j++) {
-        const { offset_type, fixed_day, fixed_month,
-          month_offset, day_offset } = due_dates[j];
-
-        let calculatedDate = null;
-        switch(offset_type) {
-          case 'year-end': {
-            calculatedDate = getYearEndOffsetDate(day_offset, month_offset,
-              company.year_end_day, company.year_end_month, year);
-            break;
-          }
-          case 'registration': {
-            const companyAgency = companyAgenciesMap[filing.agency_id]
-            if (companyAgency != null) {
-              calculatedDate = getRegOffsetDate(day_offset, month_offset,
-                companyAgency.registration, year);
-            }
-            break;
-          }
-          case 'none':
-          default: {
-            calculatedDate = getDate(fixed_day, fixed_month, year)
-          }
-        }
-
-        // Add the instance of this filing to the list
         companyFilings.push({
           ...filing,
-          due: calculatedDate
+          due: calculateDueDate(due_dates[j], company, filing, companyAgenciesMap, year)
         });
       }
     }
   }
 
-  return res.status(200).json(companyFilings)
+  // Filter out filings that are out of the date range
+  const results = companyFilings.filter(filing => {
+    const due = moment(filing.due).unix()
+    return due >= start.unix() && due <= end.unix()
+  })
+
+  return res.status(200).json(results)
+}
+
+const calculateDueDate = (due_date, company, filing, companyAgenciesMap, year) => {
+  const { offset_type, fixed_day, fixed_month,
+    month_offset, day_offset } = due_date;
+
+  switch(offset_type) {
+    case 'year-end': {
+       return getYearEndOffsetDate(day_offset, month_offset,
+        company.year_end_day, company.year_end_month, year);
+    }
+    case 'registration': {
+      const companyAgency = companyAgenciesMap[filing.agency_id]
+      if (companyAgency != null) {
+        return getRegOffsetDate(day_offset, month_offset,
+          companyAgency.registration, year);
+      }
+      return null;
+    }
+    case 'none':
+    default: {
+      return getDate(fixed_day, fixed_month, year);
+    }
+  }
 }
 
 const getDate = (day, month, year) => {
