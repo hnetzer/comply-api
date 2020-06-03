@@ -1,12 +1,17 @@
 import models, { sequelize } from '../models';
 
 const {
-  Jurisdiction
+  Jurisdiction,
+  Agency
 } = models;
 
 
 const getJurisdictions = async (req, res, next) => {
-    const jurisdictions = await Jurisdiction.findAll({ raw: true });
+    const jurisdictions = await Jurisdiction.findAll({
+      include: [{
+        model: Agency
+      }]
+    });
     return res.status(200).json(jurisdictions)
 }
 

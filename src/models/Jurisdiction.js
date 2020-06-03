@@ -7,6 +7,7 @@ const jurisdiction = (sequelize, DataTypes) => {
 
   Jurisdiction.associate = models => {
     Jurisdiction.belongsToMany(models.Company, { through: models.CompanyJurisdiction })
+    Jurisdiction.hasMany(models.Agency, { foreignKey: 'jurisdiction_id' })
   };
 
   Jurisdiction.findOrCreateState = async (stateName) => {
