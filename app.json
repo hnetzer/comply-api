@@ -23,5 +23,5 @@
       "url": "heroku/nodejs"
     }
   ],
-  "addons": [ "heroku-postgresql" ]
+  "addons": [ "heroku-postgresql:hobby-basic" ]
 }
