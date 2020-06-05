@@ -8,7 +8,7 @@
       "required": false
     },
     "DATABASE_URL": {
-      "required": true
+      "required": false
     },
     "NPM_CONFIG_PRODUCTION": {
       "value": false
@@ -18,10 +18,24 @@
       "generator": "secret"
     }
   },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "standard-1x"
+    }
+  },
   "buildpacks": [
     {
       "url": "heroku/nodejs"
     }
   ],
-  "addons": [ "heroku-postgresql" ]
+  "addons": [ "heroku-postgresql:hobby-dev" ],
+  "environments": {
+    "review": {
+      "addons": ["heroku-postgresql:hobby-basic"],
+      "scripts": {
+        "postdeploy": "sequelize db:migrate && npm run seeds"
+      }
+    }
+  }
 }
