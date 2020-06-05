@@ -18,9 +18,6 @@
       "generator": "secret"
     }
   },
-  "scripts": {
-    "postdeploy": "sequelize db:migrate && npm run seeds"
-  },
   "formation": {
     "web": {
       "quantity": 1,
@@ -35,7 +32,10 @@
   "addons": [ "heroku-postgresql:hobby-dev" ],
   "environments": {
     "review": {
-      "addons": ["heroku-postgresql:hobby-basic"]
+      "addons": ["heroku-postgresql:hobby-basic"],
+      "scripts": {
+        "postdeploy": "sequelize db:migrate && npm run seeds"
+      }
     }
   }
 }
