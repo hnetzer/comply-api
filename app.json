@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "postdeploy": "sequelize db:migrate"
+    "postdeploy": "sequelize db:migrate && npm run seeds"
   },
   "formation": {
     "web": {
