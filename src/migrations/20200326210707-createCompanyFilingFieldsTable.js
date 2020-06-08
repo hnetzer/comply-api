@@ -44,6 +44,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.dropTable('filing_due_dates');
+      return queryInterface.dropTable('company_filing_fields');
   }
 };

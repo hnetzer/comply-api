@@ -30,11 +30,14 @@
     }
   ],
   "addons": [ "heroku-postgresql:hobby-dev" ],
+  "scripts": {
+    "postdeploy": "sequelize db:migrate"
+  },
   "environments": {
     "review": {
       "addons": ["heroku-postgresql:hobby-basic"],
       "scripts": {
-        "postdeploy": "sequelize db:migrate && npm run seeds"
+        "postdeploy": "sequelize db:migrate && sequelize db:seed:all"
       }
     }
   }
