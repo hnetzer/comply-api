@@ -142,24 +142,6 @@ const seedFilings = async () => {
     ]
   })
 
-  /*await createFiling({
-    filing: { name: 'Form 100', occurrence: 'annual' },
-    agency: 'Franchise Tax Board',
-    jurisdiction: 'California',
-    due_dates: [
-      { offset_type: 'year-end', month_offset: 3, day_offset: '15' }
-    ]
-  })
-
-  await createFiling({
-    filing: { name: 'Form 100-ES', occurrence: 'multiple' },
-    agency: 'Franchise Tax Board',
-    jurisdiction: 'California',
-    due_dates: [
-      { offset_type: 'year-end', month_offset: 5, day_offset: '15' },
-      { offset_type: 'year-end', month_offset: 8, day_offset: '15' },
-    ]
-  })*/
 
   await createFiling({
     filing: { name: 'Form 571-L', occurrence: 'annual' },
@@ -299,18 +281,6 @@ const seedFilings = async () => {
       { offset_type: 'year-end', month_offset: 3, day_offset: '15' },
     ]
   })
-
-  /*
-  await createFiling({
-    filing: { name: 'CT-400 Estimate', occurrence: 'multiple' },
-    agency: 'Department of Taxation and Finance',
-    jurisdiction: 'New York',
-    due_dates: [
-      { offset_type: 'year-end', month_offset: 5, day_offset: '15' },
-      { offset_type: 'year-end', month_offset: 8, day_offset: '15' },
-      { offset_type: 'year-end', month_offset: 11, day_offset: '15' },
-    ]
-  })*/
 }
 
 const createUser = async (companyName, { name, title, email, password, roles, permissions}) => {
