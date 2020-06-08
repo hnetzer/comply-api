@@ -32,9 +32,9 @@ const getFilingsForCompany =  async (req, res, next) => {
   // Override default start and end dates with query params
   let start = moment()
   let end = moment().add(1, 'y')
-  if (req.params.startDate && req.params.endDate) {
-    start = moment(req.params.startDate)
-    end = moment(req.params.endDate)
+  if (req.query.startDate != null && req.query.endDate != null) {
+    start = moment(req.query.startDate)
+    end = moment(req.query.endDate)
   }
 
   const company = await Company.findOne({ where: { id: companyId } });
@@ -46,6 +46,7 @@ const getFilingsForCompany =  async (req, res, next) => {
     acc[a.agency_id] = a
     return acc;
   }, {})
+
 
   const filings = await Filing.findAllForCompany(companyId)
   const companyFilings = [];
@@ -68,6 +69,9 @@ const getFilingsForCompany =  async (req, res, next) => {
 
   // Filter out filings that are out of the date range
   const results = companyFilings.filter(filing => {
+    if (!filing.due && req.query.unscheduled) {
+      return true;
+    }
     const due = moment(filing.due).unix()
     return due >= start.unix() && due <= end.unix()
   })
@@ -86,7 +90,7 @@ const calculateDueDate = (due_date, company, filing, companyAgenciesMap, year) =
     }
     case 'registration': {
       const companyAgency = companyAgenciesMap[filing.agency_id]
-      if (companyAgency != null) {
+      if (companyAgency.registration != null) {
         return getRegOffsetDate(day_offset, month_offset,
           companyAgency.registration, year);
       }
