@@ -14,6 +14,10 @@ import {
 } from '../controllers/companyAgencyController'
 
 import {
+  getCompanyJurisdictions
+} from '../controllers/companyJurisdictionController'
+
+import {
   getCompanyFilings,
   getFilingsForCompany,
   createCompanyFiling,
@@ -35,6 +39,7 @@ router.get('/:companyId/companyagencies', getCompanyAgencies);
 router.put('/:companyId/companyagencies', updateCompanyAgencies);
 router.put('/:companyId/companyagencies/:agencyId', updateCompanyAgency);
 
+router.get('/:companyId/jurisdictions', getCompanyJurisdictions);
 
 router.get('/:companyId/filings', getFilingsForCompany);
 
