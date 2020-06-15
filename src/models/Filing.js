@@ -22,6 +22,7 @@ const filing = (sequelize, DataTypes) => {
 
   Filing.findAllForCompany = (companyId) => {
     return Filing.findAll({
+      where: { disabled: false },
       include: [{
         model: models.Agency,
         required: true,
