@@ -95,6 +95,12 @@ const updateOffices = async (req, res, next) => {
      }
    }
 
+   // Add the appropriate jurisdiction for the formation state
+   if (company.formation_state) {
+     const j = await Jurisdiction.findOrCreateState(company.formation_state)
+     jurisdictionMap[j.id] = true;
+   }
+
    // Delete and create all of the office locations
    // TODO: should we be updating these instead?
    await Office.destroy({ where: { company_id: companyId } })
