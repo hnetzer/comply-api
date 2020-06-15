@@ -8,8 +8,11 @@ const {
 
 const getJurisdictions = async (req, res, next) => {
     const jurisdictions = await Jurisdiction.findAll({
+      where: { disabled: false },
       include: [{
-        model: Agency
+        model: Agency,
+        where: { disabled: false },
+        required: false
       }]
     });
     return res.status(200).json(jurisdictions)
@@ -44,9 +47,35 @@ const updateJurisdiction = async (req, res, next) => {
   return res.status(200).json(jurisdiction)
 }
 
+const deleteJurisdiction = async (req, res, next) => {
+  const jurisdictionId = req.params.jurisdictionId
+  const jurisdiction = await Jurisdiction.findOne({
+    where: { id: jurisdictionId },
+    include: [{
+      model: Agency,
+      where: { disabled: false },
+      required: false
+    }]
+  });
+
+
+  if(jurisdiction.dataValues.agencies.length > 0) {
+    return res.status(403).json({ message: "You cannot delete an jurisdiction with agencies"})
+  }
+
+  await Jurisdiction.update({
+    disabled: true
+  }, {
+    where: { id: jurisdictionId }
+  });
+
+  return res.status(200).send({ id: jurisdictionId })
+}
+
 
 export {
   getJurisdictions,
   createJurisdiction,
-  updateJurisdiction
+  updateJurisdiction,
+  deleteJurisdiction
 }

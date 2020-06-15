@@ -11,13 +11,15 @@ import {
 import {
   getJurisdictions,
   createJurisdiction,
-  updateJurisdiction
+  updateJurisdiction,
+  deleteJurisdiction
 } from '../controllers/jurisdictionsController';
 
 import {
   getAgencies,
   createAgency,
-  updateAgency
+  updateAgency,
+  deleteAgency
 } from '../controllers/agenciesController';
 
 import {
@@ -56,10 +58,12 @@ router.put('/companyfilings/:companyFilingId', updateStatus)
 router.get('/jurisdictions', getJurisdictions)
 router.post('/jurisdictions', createJurisdiction)
 router.put('/jurisdictions/:jurisdictionId', updateJurisdiction)
+router.delete('/jurisdictions/:jurisdictionId', deleteJurisdiction)
 
 router.get('/agencies', getAgencies)
 router.post('/agencies', createAgency)
 router.put('/agencies/:agencyId', updateAgency)
+router.delete('/agencies/:agencyId', deleteAgency)
 
 router.get('/filings', getAllFilings)
 router.get('/filings/:filingId', getFiling)
