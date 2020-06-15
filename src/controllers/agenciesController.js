@@ -8,6 +8,7 @@ const {
   User,
   Office,
   Agency,
+  Filing
 } = models;
 
 // Gets agencies based on a company's jurisdictions
@@ -53,9 +54,14 @@ const getAgenciesForCompany = async (req, res, next) => {
 
 const getAgencies = async (req, res, next) => {
   const agencies = await Agency.findAll({
-    include: {
+    where: { disabled: false },
+    include: [{
       model: Jurisdiction
-    }
+    }, {
+      model: Filing,
+      where: { disabled: false },
+      required: false
+    }]
   });
 
   return res.status(200).send(agencies)
@@ -98,11 +104,12 @@ const updateAgency = async (req, res, next) => {
 
 const deleteAgency = async (req, res, next) => {
   const agencyId = req.params.agencyId
-  const agency = Agency.findOne({
+  const agency = await Agency.findOne({
     where: { id: agencyId },
     include: [{
-      model: Filings,
-      where: { disabled: false }
+      model: Filing,
+      where: { disabled: false },
+      required: false
     }]
   })
 
@@ -116,7 +123,7 @@ const deleteAgency = async (req, res, next) => {
     where: { id: agencyId }
   });
 
-  return res.status(200).send()
+  return res.status(200).send({ id: agencyId })
 }
 
 
