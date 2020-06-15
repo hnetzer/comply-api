@@ -96,10 +96,34 @@ const updateAgency = async (req, res, next) => {
   return res.status(200).json(agency)
 }
 
+const deleteAgency = async (req, res, next) => {
+  const agencyId = req.params.agencyId
+  const agency = Agency.findOne({
+    where: { id: agencyId },
+    include: [{
+      model: Filings,
+      where: { disabled: false }
+    }]
+  })
+
+  if(agency.dataValues.filings.length > 0) {
+    return res.status(403).json({ message: "You cannot delete an agency with filings"})
+  }
+
+  await Agency.update({
+    disabled: true
+  }, {
+    where: { id: agencyId }
+  });
+
+  return res.status(200).send()
+}
+
 
 export {
   getAgenciesForCompany,
   getAgencies,
   createAgency,
-  updateAgency
+  updateAgency,
+  deleteAgency
 }
