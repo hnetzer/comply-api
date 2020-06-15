@@ -8,9 +8,11 @@ const {
 
 const getJurisdictions = async (req, res, next) => {
     const jurisdictions = await Jurisdiction.findAll({
+      where: { disabled: false },
       include: [{
         model: Agency,
-        where: { disabled: false }
+        where: { disabled: false },
+        required: false
       }]
     });
     return res.status(200).json(jurisdictions)
@@ -51,7 +53,8 @@ const deleteJurisdiction = async (req, res, next) => {
     where: { id: jurisdictionId },
     include: [{
       model: Agency,
-      where: { disabled: false}
+      where: { disabled: false },
+      required: false
     }]
   });
 
@@ -63,10 +66,10 @@ const deleteJurisdiction = async (req, res, next) => {
   await Jurisdiction.update({
     disabled: true
   }, {
-    where: { id: agencyId }
+    where: { id: jurisdictionId }
   });
 
-  return res.status(200).send()
+  return res.status(200).send({ id: jurisdictionId })
 }
 
 
