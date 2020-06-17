@@ -30,11 +30,12 @@ const createJurisdiction = async (req, res, next) => {
 
 const updateJurisdiction = async (req, res, next) => {
   const jurisdictionId = req.params.jurisdictionId
-  const { name, state, type } = req.body
+  const { name, state, type, supported } = req.body
   await Jurisdiction.update({
     name: name,
     state: state,
-    type: type
+    type: type,
+    supported: supported
   }, {
     where: { id: jurisdictionId }
   });
