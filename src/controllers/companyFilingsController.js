@@ -81,7 +81,7 @@ const getFilingsForCompany =  async (req, res, next) => {
 
 const calculateDueDate = (due_date, company, filing, companyAgenciesMap, year) => {
   const { offset_type, fixed_day, fixed_month,
-    month_offset, day_offset } = due_date;
+    month_offset, day_offset, month_end } = due_date;
 
   switch(offset_type) {
     case 'year-end': {
@@ -91,7 +91,7 @@ const calculateDueDate = (due_date, company, filing, companyAgenciesMap, year) =
     case 'registration': {
       const companyAgency = companyAgenciesMap[filing.agency_id]
       if (companyAgency.registration != null) {
-        return getRegOffsetDate(day_offset, month_offset,
+        return getRegOffsetDate(day_offset, month_offset, month_end,
           companyAgency.registration, year);
       }
       return null;
@@ -108,9 +108,14 @@ const getDate = (day, month, year) => {
   return d.format('YYYY-MM-DD')
 }
 
-const getRegOffsetDate = (dayOffset, monthOffset, regDate, year) => {
-  const d = moment(regDate).set('year', year)
-    .add({ days: dayOffset, months: monthOffset })
+const getRegOffsetDate = (dayOffset, monthOffset, month_end, regDate, year) => {
+  const d = moment(regDate).set('year', year).add({ months: monthOffset })
+  if (month_end) {
+    d.endOf('month')
+  } else {
+    d.add({ days: dayOffset })
+  }
+
   return d.format('YYYY-MM-DD')
 }
 

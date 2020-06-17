@@ -16,7 +16,10 @@ const filingDueDate = (sequelize, DataTypes) => {
     },
     day_offset: {
       type: DataTypes.INTEGER
-    }
+    },
+    month_end: {
+      type: DataTypes.BOOLEAN
+    },
   }, { underscored: true });
 
   FilingDueDate.associate = models => {
