@@ -52,7 +52,25 @@ const updateCompany = async (req, res, next) => {
   }
 
   await Company.update(req.body, options);
-  const company = await Company.findOne(options);
+
+  const c = await Company.findOne({ where: { id: req.user.company_id }, raw: true });
+  return res.status(200).json(c)
+}
+
+const setWantsPremium = async (req, res, next) => {
+  const companyId = req.params.companyId;
+  if (req.user.company_id != companyId) {
+    return res.status(401).send()
+  }
+
+  const options = {
+    where: { id: companyId }
+  }
+
+  await Company.update({
+    wants_premium: true
+  }, options);
+
 
   const c = await Company.findOne({ where: { id: req.user.company_id }, raw: true });
   return res.status(200).json(c)
@@ -179,6 +197,7 @@ export {
   getCompany,
   updateCompany,
   updateOffices,
+  setWantsPremium,
 
   // admin
   getCompanies,

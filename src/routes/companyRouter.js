@@ -5,6 +5,7 @@ import {
   updateCompany,
   updateOffices,
   getCompany,
+  setWantsPremium,
 } from '../controllers/companyController'
 
 import {
@@ -33,6 +34,7 @@ router.use(passport.authenticate('jwt', { session: false }));
 
 router.get('/:companyId', getCompany)
 router.put('/:companyId', updateCompany);
+router.put('/:companyId/premium', setWantsPremium);
 router.put('/:companyId/offices', updateOffices);
 
 router.get('/:companyId/companyagencies', getCompanyAgencies);

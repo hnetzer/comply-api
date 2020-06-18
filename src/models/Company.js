@@ -24,6 +24,9 @@ const company = (sequelize, DataTypes) => {
     },
     onboarded: {
       type: DataTypes.BOOLEAN
+    },
+    wants_premium: {
+      type: DataTypes.BOOLEAN
     }
   }, { underscored: true });
 
