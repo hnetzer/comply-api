@@ -2,7 +2,7 @@
 API to support Comply Hub and Comply Admin portal
 
 ### Dependencies
-- Postgres 
+- Postgres
 - Node (10.x)
 
 ### Environment vars
@@ -14,8 +14,8 @@ DATABASE_USER=henry
 
 ### Database setup & seed data
 ```
-npm install
-npm run seeds
+sequelize db:migrate
+sequelize db:seed:all
 ```
 
 ### Install & start
@@ -33,3 +33,8 @@ User
 
 Admin
 - admin@comply.co / test
+
+### Creating Admin accounts
+```
+npm run create-admin [first_name] [last_name] [email] [password]
+```

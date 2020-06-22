@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf dist",
     "build": "babel ./src --out-dir build --copy-files",
-    "seeds": "babel-node src/seeds.js"
+    "create-admin": "babel-node src/scripts/createAdmin.js"
   },
   "author": "Henry Netzer",
   "license": "ISC",

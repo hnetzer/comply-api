@@ -23,13 +23,12 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
       return done(e);
     }
 
-
     const match = await user.checkPassword(password);
-    // TODO: update this to check hashed passwords
     if (!match) {
       return done(null, false, { message: 'Incorrect password.' });
     }
 
+    console.log('Successful login from', username)
     return done(null, user.get({ plain: true }));
 });
 
