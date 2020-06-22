@@ -1,6 +1,9 @@
 {
   "name": "comply-api",
   "env": {
+    "PORT": {
+      "required": true
+    },
     "NODE_ENV": {
       "required": true
     },
