@@ -1,21 +1,22 @@
 {
   "name": "comply-api",
   "env": {
-    "PORT": {
-      "required": false
-    },
     "NODE_ENV": {
-      "required": false
-    },
-    "DATABASE_URL": {
-      "required": false
+      "required": true
     },
     "NPM_CONFIG_PRODUCTION": {
       "value": false
     },
+    "GOOGLE_API_KEY": {
+      "required": true
+    },
     "JWT_SECRET": {
       "required": true,
       "generator": "secret"
+    },
+    "POST_DEPLOY_TASKS": {
+      "required": true,
+      "value": "sequelize db:migrate"
     }
   },
   "formation": {
