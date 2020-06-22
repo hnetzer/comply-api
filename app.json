@@ -13,10 +13,6 @@
     "JWT_SECRET": {
       "required": true,
       "generator": "secret"
-    },
-    "POST_DEPLOY_TASKS": {
-      "required": true,
-      "value": "sequelize db:migrate"
     }
   },
   "formation": {

@@ -3,12 +3,4 @@
 set -e            # fail fast
 set -o pipefail   # don't ignore exit codes when piping output
 
-if [ -z "$POST_DEPLOY_TASKS" ]; then
-  echo "POST_DEPLOY_TASKS has not been set"
-  exit 0
-fi
-
-tasks=(`echo ${POST_DEPLOY_TASKS}`)
-for task in ${tasks[@]}; do
-  bundle exec rake $task
-done
+exec sequelize db:migrate
