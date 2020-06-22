@@ -1,2 +1,2 @@
 web: npm run clean && npm run build && node build/index.js
-release: ./bin/post-deploy
+release: node_modules/.bin/sequelize db:migrate
