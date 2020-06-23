@@ -17,7 +17,7 @@ const db = {
 // if env is not development or test
 if (config.use_env_variable) {
   db.native = true;
-  db.logging = true;
+  db.logging = console.log;
   sequelize = new Sequelize(process.env[config.use_env_variable], db);
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, db);
