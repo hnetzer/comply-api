@@ -109,7 +109,7 @@ const getDate = (day, month, year) => {
 }
 
 const getRegOffsetDate = (dayOffset, monthOffset, month_end, regDate, year) => {
-  const d = moment(regDate).set('year', year).add({ months: monthOffset })
+  const d = moment(regDate).add({ months: monthOffset }).set('year', year)
   if (month_end) {
     d.endOf('month')
   } else {
