@@ -77,9 +77,13 @@ const createAgency = async (req, res, next) => {
 
     const agency = await Agency.findOne({
       where: { id: result.id },
-      include: {
+      include: [{
         model: Jurisdiction
-      }
+      }, {
+        model: Filing,
+        where: { disabled: false },
+        required: false
+      }]
     });
 
     return res.status(200).json(agency)
@@ -98,7 +102,13 @@ const updateAgency = async (req, res, next) => {
 
   const agency = await Agency.findOne({
     where: { id: agencyId },
-    raw: true
+    include: [{
+      model: Jurisdiction
+    }, {
+      model: Filing,
+      where: { disabled: false },
+      required: false
+    }]
   });
 
   return res.status(200).json(agency)
