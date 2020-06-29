@@ -6,6 +6,9 @@ const agency = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
     },
+    website: {
+      type: DataTypes.STRING,
+    },
     disabled: {
       type: DataTypes.BOOLEAN,
     }

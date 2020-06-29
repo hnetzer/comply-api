@@ -68,9 +68,10 @@ const getAgencies = async (req, res, next) => {
 }
 
 const createAgency = async (req, res, next) => {
-    const { name, jurisdiction_id } = req.body
+    const { name, jurisdiction_id, website } = req.body
     const result = await Agency.create({
       name: name,
+      website: website,
       jurisdiction_id: jurisdiction_id
     });
 
@@ -86,9 +87,10 @@ const createAgency = async (req, res, next) => {
 
 const updateAgency = async (req, res, next) => {
   const agencyId = req.params.agencyId
-  const { name, jurisdiction_id } = req.body
+  const { name, jurisdiction_id , website } = req.body
   await Agency.update({
     name: name,
+    website: website,
     jurisdiction_id: jurisdiction_id
   }, {
     where: { id: agencyId }
