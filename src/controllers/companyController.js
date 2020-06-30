@@ -182,6 +182,8 @@ const adminGetCompany = async (req, res, next) => {
         model: User
       }, {
         model: Office
+      }, {
+        model: Jurisdiction
       }]
     })
 
