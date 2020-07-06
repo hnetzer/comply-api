@@ -29,7 +29,7 @@ const filing = (sequelize, DataTypes) => {
         include: [{
           model: models.CompanyAgency,
           required: true,
-          where: { company_id: companyId  }
+          where: { company_id: companyId, registered: true  }
         }, {
           model: models.Jurisdiction
         }]
