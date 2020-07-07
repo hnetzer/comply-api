@@ -59,31 +59,13 @@ const createFiling = async (req, res, next) => {
     const result = await Filing.create({
       name: filing.name,
       occurrence: filing.occurrence,
+      website: filing.website,
+      description: filing.description,
       agency_id: filing.agency_id,
     });
 
-
     const due_dates = filing.due_dates.map(f => ({ ...f, filing_id: result.id }))
     await FilingDueDate.bulkCreate(due_dates)
-
-    const fields = filing.fields.map(f => ({ ...f, filing_id: result.id }))
-    await FilingField.bulkCreate(fields)
-
-    const newFiling = await Filing.findOne({
-      where: { id: result.id },
-      include: [{
-        model: Agency,
-        include: [{
-          model: Jurisdiction
-        }]
-      }, {
-        model: FilingField,
-        as: 'fields'
-      }, {
-        model: FilingDueDate,
-        as: 'due_dates'
-      }]
-    });
 
     return res.status(200).json(newFiling)
 }
@@ -96,6 +78,8 @@ const updateFiling = async (req, res, next) => {
       await Filing.update({
         name: filing.name,
         occurrence: filing.occurrence,
+        website: filing.website,
+        description: filing.description,
         agency_id: filing.agency_id
       }, {
         where: { id: filingId }
@@ -107,30 +91,6 @@ const updateFiling = async (req, res, next) => {
       // Recreate the new due dates
       const due_dates = filing.due_dates.map(d => ({ ...d, filing_id: filingId }))
       await FilingDueDate.bulkCreate(due_dates)
-
-      //  Update the fields (it's important to maintain the field id!)
-      const updatedFields = filing.fields
-      for (let i=0; i < updatedFields.length; i++) {
-        const field = updatedFields[i]
-        const update = {
-          name: field.name,
-          helper_text: field.helper_text,
-          type: field.type,
-          order: field.order
-        }
-        if (field.id) {
-          await FilingField.upsert({
-            ...update,
-            id: field.id,
-            filing_id: filingId
-          })
-        } else {
-          await FilingField.create({
-            ...update,
-            filing_id: filingId
-          })
-        }
-      }
 
     } catch (err) {
       console.log(err)
