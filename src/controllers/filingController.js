@@ -67,6 +67,22 @@ const createFiling = async (req, res, next) => {
     const due_dates = filing.due_dates.map(f => ({ ...f, filing_id: result.id }))
     await FilingDueDate.bulkCreate(due_dates)
 
+    const newFiling = await Filing.findOne({
+       where: { id: result.id },
+       include: [{
+         model: Agency,
+         include: [{
+           model: Jurisdiction
+         }]
+       }, {
+         model: FilingField,
+         as: 'fields'
+       }, {
+         model: FilingDueDate,
+         as: 'due_dates'
+       }]
+     });
+
     return res.status(200).json(newFiling)
 }
 
