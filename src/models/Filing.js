@@ -9,6 +9,12 @@ const filing = (sequelize, DataTypes) => {
     occurrence: {
       type: DataTypes.ENUM('annual', 'multiple', 'biennial')
     },
+    website: {
+      type: DataTypes.STRING
+    },
+    description: {
+      type: DataTypes.STRING
+    },
     disabled: {
       type: DataTypes.BOOLEAN,
     }
