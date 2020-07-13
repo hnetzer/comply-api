@@ -16,6 +16,9 @@
     "JWT_SECRET": {
       "required": true,
       "generator": "secret"
+    },
+    "SENDGRID_API_KEY": {
+      "required": true
     }
   },
   "formation": {
