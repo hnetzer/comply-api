@@ -25,7 +25,7 @@ const {
 // TODO: Move this to the filings controller?
 const getFilingsForCompany =  async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (req.user.company_id != companyId && req.user.roles.indexOf('admin') === -1) {
     return res.status(401).send()
   }
 
