@@ -27,11 +27,12 @@ const getAgenciesForCompany = async (req, res, next) => {
     }, [])
 
     const agencies = await Agency.findAll({
-      where: { jurisdiction_id: jurisdictionIds },
+      where: { jurisdiction_id: jurisdictionIds, disabled: false },
       raw: true
     });
 
     const jurisdictions = await Jurisdiction.findAll({
+      where: { disabled: false },
       raw: true
     });
 
