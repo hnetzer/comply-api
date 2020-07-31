@@ -5,7 +5,6 @@ const companyAgency = (sequelize, DataTypes) => {
     },
     registered: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
     }
   }, { underscored: true });
 

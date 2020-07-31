@@ -136,6 +136,20 @@ const updateOffices = async (req, res, next) => {
    await CompanyJurisdiction.destroy({ where: { company_id: companyId } })
    await CompanyJurisdiction.bulkCreate(companyJurisdictions);
 
+   // Find the agencies that this company should be registered with
+   const agencies = await Agency.findAll({
+     where: { jurisdiction_id: { [Op.in]: jurisdictionIds } },
+     raw: true
+   })
+
+   // Find or create the company agency objects
+   for (let i=0; i < agencies.length; i++) {
+     const agencyId = agencies[i].id
+     await CompanyAgency.findOrCreate({
+       where: { companyId: companyId, agencyId: agencyId }
+     })
+   }
+
    // Get our newly created offices
    const offices = await Office.findAll({ where: { company_id: companyId }});
    return res.status(200).json(offices)
