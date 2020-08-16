@@ -1,6 +1,7 @@
 import models, { sequelize } from '../models';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import Slack from '../services/Slack';
 
 const {
   Company,
@@ -42,6 +43,10 @@ const createAccount = async (req, res, next) => {
       model: Company,
     },
     raw: true })
+
+  const channelId = process.env.SLACK_CHANNEL_ID
+  const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email}) - ${user.title} @ ${user.company}`
+  Slack.publishMessage(channelId, message)
 
   req.login(newUser, { session: false }, err => {
     if (err) {
