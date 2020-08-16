@@ -13,6 +13,12 @@
     },
     "SENDGRID_API_KEY": {
       "required": true
+    },
+    "SLACK_TOKEN": {
+      "required": true
+    },
+    "SLACK_CHANNEL_ID": {
+      "required": true
     }
   },
   "formation": {
