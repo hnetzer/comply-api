@@ -14,11 +14,16 @@ const companyFiling = (sequelize, DataTypes) => {
       type: DataTypes.DATEONLY,
       required: true
     },
+    year: {
+      type: DataTypes.INTEGER,
+      required: true
+    }
   }, { underscored: true });
 
   CompanyFiling.associate = models => {
     CompanyFiling.belongsTo(models.Company, { foreignKey: 'company_id' });
     CompanyFiling.belongsTo(models.Filing, { foreignKey: 'filing_id' });
+    CompanyFiling.belongsTo(models.FilingDueDate, { foreignKey: 'filing_due_date_id' })
     CompanyFiling.hasMany(models.CompanyFilingField, { as: 'fields' });
   };
 
