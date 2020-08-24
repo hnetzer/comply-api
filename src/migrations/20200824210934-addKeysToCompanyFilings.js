@@ -11,6 +11,9 @@ module.exports = {
       REFERENCES filing_due_dates(id);
 
       ALTER TABLE company_filings ADD COLUMN year INTEGER NOT NULL;
+
+      ALTER TABLE company_filings DROP COLUMN status;
+      ALTER TABLE company_filings DROP COLUMN field_data;
     `);
   },
 

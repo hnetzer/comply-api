@@ -7,6 +7,7 @@ import moment from 'moment'
 const {
   Company,
   CompanyAgency,
+  CompanyFiling,
   Filing,
   FilingDueDate,
 } = models;
@@ -26,6 +27,7 @@ const start = async () => {
       where: { onboarded: true, type: 'Corporation' }
     })
 
+    let createdCountTotal = 0;
     for (let x = 0; x < companies.length; x++) {
       const company = companies[x].dataValues;
 
@@ -47,10 +49,14 @@ const start = async () => {
 
           // Check the due dates schedule of each filing
           for (let j=0; j < due_dates.length; j++) {
-            const date = due_dates[j].calculateDate(company, companyAgency.registration, year);
+            const dueDate = due_dates[j];
+            const date = dueDate.calculateDate(company, companyAgency.registration, year);
             potential.push({
-              ...filing,
-              due: date
+              company_id: company.id,
+              filing_id: filing.id,
+              filing_due_date_id: dueDate.id,
+              year: year,
+              due_date: date
             })
           }
         }
@@ -58,8 +64,8 @@ const start = async () => {
 
       // Filter out filings that are out of the date range
       const companyFilings = potential.filter(filing => {
-        if (!filing.due) return false;
-        const due = moment(filing.due).unix()
+        if (!filing.due_date) return false;
+        const due = moment(filing.due_date).unix()
         return due >= start.unix() && due <= end.unix()
       })
 
@@ -71,14 +77,32 @@ const start = async () => {
         if (aTime === bTime) return 0;
       })
 
-      companyFilings.forEach(f => {
-        console.log(`${f.name}, ${f.agency.name}, ${f.agency.jurisdiction.name}, ${f.due}`)
-      })
+      let createdCountCompany = 0;
+      for (let i=0; i < companyFilings.length; i++) {
+        const cf = companyFilings[i]
+        const record = await CompanyFiling.findOne({
+          where: {
+            company_id: cf.company_id,
+            filing_id: cf.filing_id,
+            filing_due_date_id: cf.filing_due_date_id,
+            year: cf.year,
+          }
+        })
 
+        if (!record) {
+          const result = await CompanyFiling.create(cf);
+          createdCountCompany++;
+          createdCountTotal++;
+        }
+      }
 
-
-      console.log('\n')
+      if (createdCountCompany) {
+        console.log(`Created ${createdCountCompany} new company filing(s) for ${company.name}`)
+      }
     }
+
+    console.log('\n')
+    console.log(`Created ${createdCountTotal} new company filings`)
 
   } catch (err) {
     console.error(err)
