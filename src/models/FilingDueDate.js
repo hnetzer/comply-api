@@ -67,9 +67,9 @@ const filingDueDate = (sequelize, DataTypes) => {
 
   // Helper function for calculate date
   const getYearEndOffsetDate = (dayOffset, monthOffset, yearEndDay, yearEndMonth, year) => {
-    const d = moment().year(year)
-      .month(yearEndMonth).date(yearEndDay)
+    const d = moment().month(yearEndMonth).date(yearEndDay)
       .add({ days: dayOffset, months: monthOffset })
+      .set('year', year)
     return d
   }
 

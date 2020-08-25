@@ -1,3 +1,5 @@
+import models from '../models';
+
 const company = (sequelize, DataTypes) => {
   const Company = sequelize.define('company', {
     name: {
@@ -37,6 +39,22 @@ const company = (sequelize, DataTypes) => {
     Company.hasMany(models.User, { foreignKey: 'company_id' })
     Company.hasMany(models.CompanyFiling, { foreignKey: 'company_id' })
   };
+
+  Company.prototype.syncFilings = async function(year) {
+    const companyAgencies = await models.CompanyAgency.findAll({
+      where: { company_id: this.id, registered: true }
+    })
+
+    let count = 0;
+    for (let i=0; i< companyAgencies.length; i++) {
+      const created = await companyAgencies[i].syncFilings(year)
+      if (created) {
+        count = count + created;
+      }
+    }
+
+    return count;
+  }
 
   return Company;
 };

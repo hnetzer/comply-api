@@ -54,7 +54,11 @@ const filing = (sequelize, DataTypes) => {
       raw: true
     })
 
-    const instances = this.due_dates.map(dueDate => {
+    const dueDates = await models.FilingDueDate.findAll({
+      where: { filing_id: this.id }
+    })
+
+    const instances = dueDates.map(dueDate => {
       return {
         year: year,
         company_id: company.id,

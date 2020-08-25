@@ -6,10 +6,6 @@ import moment from 'moment'
 
 const {
   Company,
-  CompanyAgency,
-  CompanyFiling,
-  Filing,
-  FilingDueDate,
 } = models;
 
 
@@ -26,37 +22,15 @@ const start = async () => {
       where: { onboarded: true, type: 'Corporation' }
     })
 
-    let createdCountTotal = 0;
+    let count = 0;
     for (let x = 0; x < companies.length; x++) {
-      const company = companies[x].dataValues;
-      const filings = await Filing.findAllForCompany(company.id)
-      let potential = [];
-
-      // Get all of the company filing instances for the years we need to consider
+      const company = companies[x];
       for (let year=start.year(); year <= end.year(); year++) {
-        for (let i=0; i< filings.length; i++) {
-          const instances = await filings[i].findInstances(company, year);
-          potential.push(...instances)
+          const created = await company.syncFilings(year)
+          count = count + created;
         }
       }
-
-      // Filter out filings that are out of the date range
-      const companyFilings = potential.filter(filing => {
-        if (!filing.due_date) return false;
-        const due = moment(filing.due_date).unix()
-        return due >= start.unix() && due <= end.unix()
-      })
-
-      // Create the company filings if they don't exist yet
-      for (let i=0; i < companyFilings.length; i++) {
-        const cf= await CompanyFiling.createIfNotExists(companyFilings[i])
-        if (cf) {
-          createdCountTotal++;
-        }
-      }
-    }
-
-    console.log(`Created ${createdCountTotal} new company filings`)
+    console.log(`Created ${count} new company filings`)
   } catch (err) {
     console.error(err)
   }
