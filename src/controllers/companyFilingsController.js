@@ -127,15 +127,37 @@ const getYearEndOffsetDate = (dayOffset, monthOffset, yearEndDay, yearEndMonth, 
 }
 
 
-
 const getCompanyFilings = async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (req.user.company_id != companyId && req.user.roles.indexOf('admin') === -1) {
     return res.status(401).send()
   }
 
+  // Override default start and end dates with query params
+  let start = moment()
+  let end = moment().add(1, 'y')
+  if (req.query.startDate != null && req.query.endDate != null) {
+    start = moment(req.query.startDate)
+    end = moment(req.query.endDate)
+  }
+
+  const filterByDate = {
+    [Op.gte]: start.format('YYYY-MM-DD'),
+    [Op.lte]: end.format('YYYY-MM-DD')
+  }
+
+  let dueDateFilter = filterByDate
+  if (req.query.unscheduled) {
+    dueDateFilter = {
+      [Op.or]: [filterByDate, null]
+    }
+  }
+
   const companyFilings = await CompanyFiling.findAll({
-    where: { company_id: companyId },
+    where: {
+      company_id: companyId,
+      due_date: dueDateFilter
+    },
     include:[{
       model: Filing,
       include: [{
