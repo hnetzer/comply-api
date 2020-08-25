@@ -3,8 +3,7 @@ import models from '../models';
 const companyFiling = (sequelize, DataTypes) => {
   const CompanyFiling = sequelize.define('company_filing', {
     due_date: {
-      type: DataTypes.DATEONLY,
-      required: true
+      type: DataTypes.DATEONLY
     },
     year: {
       type: DataTypes.INTEGER,

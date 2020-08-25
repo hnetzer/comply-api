@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import models from '../models';
+import moment from 'moment'
 
 const filing = (sequelize, DataTypes) => {
   const Filing = sequelize.define('filing', {
@@ -68,7 +69,7 @@ const filing = (sequelize, DataTypes) => {
       }
     })
 
-    return instances.filter(i => i.due_date != null)
+    return instances;
   }
 
   Filing.findOneWithDetails = async (id) => {

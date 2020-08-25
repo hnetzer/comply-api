@@ -28,29 +28,28 @@ const filingDueDate = (sequelize, DataTypes) => {
   };
 
   FilingDueDate.prototype.calculateDate = function (company, agencyRegistration, year) {
-    let date = null;
     switch(this.offset_type) {
       case 'year-end': {
-         date = getYearEndOffsetDate(this.day_offset, this.month_offset,
+        const date = getYearEndOffsetDate(this.day_offset, this.month_offset,
           company.year_end_day, company.year_end_month, year);
-        break;
+        return date.format('YYYY-MM-DD');
       }
       case 'registration': {
         if (!agencyRegistration) {
           return null;
         }
-        date = getRegOffsetDate(this.day_offset, this.month_offset, this.month_end,
+        const date = getRegOffsetDate(this.day_offset, this.month_offset, this.month_end,
           agencyRegistration, year);
-        break;
+        return date.format('YYYY-MM-DD');
       }
       case 'none':
       default: {
-        date = moment().set({ year: year, month: this.fixed_month, date: this.fixed_day});
-        break;
+        const date = moment().set({ year: year, month: this.fixed_month, date: this.fixed_day});
+        return date.format('YYYY-MM-DD');
       }
     }
 
-    return date.format('YYYY-MM-DD');
+    return null;
   }
 
   // Helper function for calculate date

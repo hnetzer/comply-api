@@ -21,7 +21,10 @@ const companyAgency = (sequelize, DataTypes) => {
       where: { agency_id: this.agency_id, disabled: false }
     })
 
-    const company = await models.Company.findOne({ where: { id: this.company_id }, raw: true })
+    const company = await models.Company.findOne({
+      where: { id: this.company_id },
+      raw: true 
+    })
 
     const companyFilings = []
     for (let i=0; i< filings.length; i++) {

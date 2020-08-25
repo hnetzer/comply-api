@@ -14,6 +14,8 @@ module.exports = {
 
       ALTER TABLE company_filings DROP COLUMN status;
       ALTER TABLE company_filings DROP COLUMN field_data;
+
+      ALTER TABLE company_filings ALTER COLUMN due_date DROP NOT NULL;
     `);
   },
 
@@ -21,6 +23,8 @@ module.exports = {
     return queryInterface.sequelize.query(`
       ALTER TABLE company_filings DROP COLUMN filing_due_date_id;
       ALTER TABLE company_filings DROP COLUMN year;
+      ALTER TABLE company_filings ADD COLUMN status text;
+      ALTER TABLE company_filings ADD COLUMN field_data jsonb;
     `);
   }
 };
