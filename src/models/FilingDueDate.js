@@ -36,11 +36,12 @@ const filingDueDate = (sequelize, DataTypes) => {
         break;
       }
       case 'registration': {
-        if (agencyRegistration != null) {
-          date = getRegOffsetDate(this.day_offset, this.month_offset, this.month_end,
-            agencyRegistration, year);
-          break;
+        if (!agencyRegistration) {
+          return null;
         }
+        date = getRegOffsetDate(this.day_offset, this.month_offset, this.month_end,
+          agencyRegistration, year);
+        break;
       }
       case 'none':
       default: {

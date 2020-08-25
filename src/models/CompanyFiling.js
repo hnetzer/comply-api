@@ -42,6 +42,27 @@ const companyFiling = (sequelize, DataTypes) => {
     })
   }
 
+  CompanyFiling.createIfNotExists = async function ({ company_id, filing_id,
+    filing_due_date_id, year, due_date }) {
+
+    const cf = {
+      company_id: company_id,
+      filing_id: filing_id,
+      filing_due_date_id: filing_due_date_id,
+      year: year
+    }
+
+    const record = await CompanyFiling.findOne({
+      where: cf
+    })
+
+    if (!record) {
+      const result = await CompanyFiling.create({ ...cf, due_date: due_date });
+      return result;
+    }
+    return null;
+  }
+
   return CompanyFiling;
 };
 export default companyFiling;

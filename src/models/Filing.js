@@ -47,6 +47,26 @@ const filing = (sequelize, DataTypes) => {
     })
   }
 
+  Filing.prototype.findInstances = async function (company, year) {
+
+    const companyAgency = await models.CompanyAgency.findOne({
+      where: { agency_id: this.agency_id, company_id: company.id },
+      raw: true
+    })
+
+    const instances = this.due_dates.map(dueDate => {
+      return {
+        year: year,
+        company_id: company.id,
+        filing_id: this.id,
+        filing_due_date_id: dueDate.id,
+        due_date: dueDate.calculateDate(company, companyAgency.registration, year)
+      }
+    })
+
+    return instances.filter(i => i.due_date != null)
+  }
+
   Filing.findOneWithDetails = async (id) => {
     const f = await Filing.findOne({
       where: { id: id }, raw: true
