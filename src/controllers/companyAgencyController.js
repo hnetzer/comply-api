@@ -46,12 +46,18 @@ const updateCompanyAgencies = async (req, res, next) => {
      }
    }
 
+
+   // Create all of the company filings
+   company.syncFilings(moment().year())
+
    // Mark the company as being onboarded
    Company.update({
      onboarded: true
    }, {
      where: { id: companyId }
    })
+
+
 
    const response = await CompanyAgency.findAll({
      where: { company_id: companyId },
