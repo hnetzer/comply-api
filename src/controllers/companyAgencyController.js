@@ -88,15 +88,14 @@ const updateCompanyAgency = async (req, res, next) => {
     returning: true
   });
 
-  const updatedCompanyAgency = await CompanyAgency.findOne({
-    where: {
-      company_id: companyId,
-      agency_id: agencyId
-     },
-    raw: true
+  const companyAgency = await CompanyAgency.findOne({
+    where: { company_id: companyId, agency_id: agencyId }
   })
 
-  return res.status(200).send(updatedCompanyAgency)
+  const count = await companyAgency.updateCompanyFilings()
+  console.log(`Updated ${count} filing due dates`)
+
+  return res.status(200).send(companyAgency)
 }
 
 const getCompanyAgencies = async (req, res, next) => {

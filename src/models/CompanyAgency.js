@@ -23,7 +23,7 @@ const companyAgency = (sequelize, DataTypes) => {
 
     const company = await models.Company.findOne({
       where: { id: this.company_id },
-      raw: true 
+      raw: true
     })
 
     const companyFilings = []
@@ -36,6 +36,38 @@ const companyAgency = (sequelize, DataTypes) => {
     for (let i=0; i < companyFilings.length; i++) {
       const cf = await models.CompanyFiling.createIfNotExists(companyFilings[i])
       if (cf) count++;
+    }
+
+    return count;
+  }
+
+  CompanyAgency.prototype.updateCompanyFilings = async function () {
+    const company = models.Company.findOne({
+      where: { id: this.company_id },
+      raw: true
+    })
+
+    const companyFilings = await models.CompanyFiling.findAll({
+      where: { company_id: this.company_id, due_date: null },
+      include: [{
+        model: models.Filing,
+        where: { agency_id: this.agency_id },
+      }]
+    })
+
+    let count = 0;
+    for (let i=0; i < companyFilings.length; i++) {
+      const { filing_id, filing_due_date_id, year } = companyFilings[i].dataValues;
+
+      const dueDate = await models.FilingDueDate.findOne({
+        where: { id: filing_due_date_id, filing_id: filing_id }
+      })
+
+      await companyFilings[i].update({
+        due_date: dueDate.calculateDate(company, this.registration, year)
+      })
+
+      count++
     }
 
     return count;
