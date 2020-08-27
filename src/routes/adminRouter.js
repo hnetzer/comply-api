@@ -6,7 +6,7 @@ import {
   reject,
   updateStatus,
   getCompanyFiling,
-  getFilingsForCompany
+  getCompanyFilings,
 } from '../controllers/companyFilingsController';
 
 import {
@@ -74,7 +74,7 @@ router.delete('/filings/:filingId', deleteFiling)
 
 router.get('/companies', getCompanies)
 router.get('/companies/:companyId', adminGetCompany)
-router.get('/companies/:companyId/filings', getFilingsForCompany)
+router.get(`/companies/:companyId/filings`, getCompanyFilings)
 
 module.exports = (app) =>{
   app.use('/admin', router);
