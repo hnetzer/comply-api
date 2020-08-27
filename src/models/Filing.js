@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import models from '../models';
+import moment from 'moment'
 
 const filing = (sequelize, DataTypes) => {
   const Filing = sequelize.define('filing', {
@@ -45,6 +46,30 @@ const filing = (sequelize, DataTypes) => {
         as: 'due_dates'
       }],
     })
+  }
+
+  Filing.prototype.findInstances = async function (company, year) {
+
+    const companyAgency = await models.CompanyAgency.findOne({
+      where: { agency_id: this.agency_id, company_id: company.id },
+      raw: true
+    })
+
+    const dueDates = await models.FilingDueDate.findAll({
+      where: { filing_id: this.id }
+    })
+
+    const instances = dueDates.map(dueDate => {
+      return {
+        year: year,
+        company_id: company.id,
+        filing_id: this.id,
+        filing_due_date_id: dueDate.id,
+        due_date: dueDate.calculateDate(company, companyAgency.registration, year)
+      }
+    })
+
+    return instances;
   }
 
   Filing.findOneWithDetails = async (id) => {

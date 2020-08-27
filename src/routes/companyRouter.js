@@ -20,7 +20,6 @@ import {
 
 import {
   getCompanyFilings,
-  getFilingsForCompany,
   createCompanyFiling,
   getCompanyFiling,
   updateCompanyFiling,
@@ -42,8 +41,6 @@ router.put('/:companyId/companyagencies', updateCompanyAgencies);
 router.put('/:companyId/companyagencies/:agencyId', updateCompanyAgency);
 
 router.get('/:companyId/jurisdictions', getCompanyJurisdictions);
-
-router.get('/:companyId/filings', getFilingsForCompany);
 
 // Company Filing Endpoints
 router.get('/:companyId/companyfilings', getCompanyFilings)

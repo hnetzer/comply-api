@@ -1,5 +1,6 @@
 import models, { sequelize } from '../models';
 import moment from 'moment';
+import { Op } from 'sequelize';
 
 const {
   Jurisdiction,
@@ -101,13 +102,30 @@ const updateFiling = async (req, res, next) => {
         where: { id: filingId }
       });
 
-      // Delete all of the existing company due dates, we'll recreate them
-      await FilingDueDate.destroy({ where: { filing_id: filingId } })
+      const dueDateIds = [];
 
-      // Recreate the new due dates
-      const due_dates = filing.due_dates.map(d => ({ ...d, filing_id: filingId }))
-      await FilingDueDate.bulkCreate(due_dates)
+      for (let i=0; i< filing.due_dates.length; i++) {
+        const filingDueDate = filing.due_dates[i];
+        const [record, created] = await FilingDueDate.upsert({
+          id: filingDueDate.id,
+          filing_id: filingId,
+          offset_type: filingDueDate.offset_type,
+          fixed_month: filingDueDate.fixed_month,
+          fixed_day: filingDueDate.fixed_day,
+          month_offset: filingDueDate.month_offset,
+          day_offset: filingDueDate.day_offset,
+          month_end: filingDueDate.month_end
+        }, { returning: true });
+        dueDateIds.push(record.id)
+      }
 
+      // Delete all of the other due dates for this filing
+      await FilingDueDate.destroy({
+        where: {
+          filing_id: filingId,
+          id: { [Op.notIn]: dueDateIds }
+        }
+      })
     } catch (err) {
       console.log(err)
       return res.status(500).send()
