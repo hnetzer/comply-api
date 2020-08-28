@@ -9,7 +9,9 @@
     "clean": "rimraf dist",
     "build": "babel ./src --out-dir build --copy-files",
     "create-admin": "babel-node src/scripts/createAdmin.js",
-    "sync-company-filings": "babel-node src/scripts/syncCompanyFilings.js"
+    "sync-company-filings": "babel-node src/scripts/syncCompanyFilings.js",
+    "send-filing-notifications": "babel-node src/scripts/sendCompanyFilingNotifications.js"
+
   },
   "author": "Henry Netzer",
   "license": "ISC",
