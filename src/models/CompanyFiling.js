@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import models from '../models';
 
 const companyFiling = (sequelize, DataTypes) => {
@@ -8,6 +9,11 @@ const companyFiling = (sequelize, DataTypes) => {
     year: {
       type: DataTypes.INTEGER,
       required: true
+    },
+    notified: {
+      type: DataTypes.BOOLEAN,
+      required: true,
+      default: false
     }
   }, { underscored: true });
 
@@ -60,6 +66,32 @@ const companyFiling = (sequelize, DataTypes) => {
       return result;
     }
     return null;
+  }
+
+  CompanyFiling.findAllNotNotified = async ({ dueStart, dueEnd}) => {
+    return CompanyFiling.findAll({
+      where: {
+        [Op.and]: [
+          { due_date: { [Op.gte]: dueStart } },
+          { due_date: { [Op.lte]: dueEnd } },
+          { notified: false }
+        ]
+      },
+      include: [{
+        model: models.Company,
+        include: [{
+          model: models.User
+        }]
+      }, {
+        model: models.Filing,
+        include: [{
+          model: models.Agency,
+          include: [{
+            model: models.Jurisdiction
+          }]
+        }]
+      }]
+    })
   }
 
   return CompanyFiling;
