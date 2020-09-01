@@ -36,6 +36,7 @@ const models = {
   CompanyFilingField: sequelize.import('./CompanyFilingField'),
   CompanyFilingMessage: sequelize.import('./CompanyFilingMessage'),
   User: sequelize.import('./User'),
+  UserSetting: sequelize.import('./UserSetting'),
   Office: sequelize.import('./Office')
 };
 
