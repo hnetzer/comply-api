@@ -18,7 +18,8 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
       user = await User.findOne({
         where: { email: username },
         include: [{
-          model: UserSetting
+          model: UserSetting,
+          as: 'settings'
         }]
       })
       if (!user) {
@@ -45,7 +46,8 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
     user = await User.findOne({
       where: { id: jwtPayload.id },
       include: [{
-        model: UserSetting
+        model: UserSetting,
+        as: 'settings'
       }],
       raw: true
     });
