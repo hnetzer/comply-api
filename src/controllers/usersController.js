@@ -16,7 +16,7 @@ const updateSettings = async (req, res, next) => {
     { where: { user_id: userId } }
   );
 
-  const c = UserSetting.findOne({ where: { user_id: userId } });
+  const c = await UserSetting.findOne({ where: { user_id: userId } });
   return res.status(200).json(c)
 }
 
