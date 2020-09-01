@@ -7,7 +7,7 @@ const JWTStrategy = PassportJWT.Strategy;
 const ExtractJWT = PassportJWT.ExtractJwt;
 
 import models from './models';
-const { User } = models;
+const { User, UserSetting } = models;
 
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -15,7 +15,13 @@ const JWT_SECRET = process.env.JWT_SECRET
 let localStrategy = new LocalStrategy(async (username, password, done) => {
   let user;
     try {
-      user = await User.findOne({ where: { email: username } })
+      user = await User.findOne({
+        where: { email: username },
+        include: [{
+          model: UserSetting,
+          as: 'settings'
+        }]
+      })
       if (!user) {
         return done(null, false, { message: 'No user by that email'});
       }
@@ -37,7 +43,14 @@ const settings = { jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(), sec
 let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
   let user;
   try {
-    user = await User.findOne({ where: { id: jwtPayload.id }, raw: true });
+    user = await User.findOne({
+      where: { id: jwtPayload.id },
+      include: [{
+        model: UserSetting,
+        as: 'settings'
+      }],
+      raw: true
+    });
 
     // TODO: Do we need to check anything here?
     return done(null, user);

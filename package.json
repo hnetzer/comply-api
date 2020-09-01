@@ -10,8 +10,8 @@
     "build": "babel ./src --out-dir build --copy-files",
     "create-admin": "babel-node src/scripts/createAdmin.js",
     "sync-company-filings": "babel-node src/scripts/syncCompanyFilings.js",
-    "send-filing-notifications": "babel-node src/scripts/sendCompanyFilingNotifications.js"
-
+    "send-filing-notifications": "babel-node src/scripts/sendCompanyFilingNotifications.js",
+    "create-user-settings": "babel-node src/scripts/createSettingsForUsers.js"
   },
   "author": "Henry Netzer",
   "license": "ISC",

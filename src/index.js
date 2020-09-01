@@ -16,6 +16,7 @@ import { sendFeedback } from './controllers/feedbackController';
 
 // Routers
 import CompanyRouter from './routes/companyRouter';
+import UsersRouter from './routes/usersRouter';
 import FilingsRouter from './routes/filingsRouter';
 import AdminRouter from './routes/adminRouter';
 
@@ -36,6 +37,7 @@ app.get('/status', (req, res) => res.json({ status: "we good" }));
 
 // Set other routers
 FilingsRouter(app);
+UsersRouter(app);
 CompanyRouter(app);
 AdminRouter(app);
 

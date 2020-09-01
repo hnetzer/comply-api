@@ -5,7 +5,8 @@ import Slack from '../services/Slack';
 
 const {
   Company,
-  User
+  User,
+  UserSetting
 } = models;
 
 const JWT_SECRET = process.env.JWT_SECRET
@@ -26,7 +27,7 @@ const createAccount = async (req, res, next) => {
   });
 
   // TODO: Add validation here
-  await User.create({
+  const u = await User.create({
     first_name: user.first_name,
     last_name: user.last_name,
     title: user.title,
@@ -35,6 +36,11 @@ const createAccount = async (req, res, next) => {
     roles: ['client'],
     permission: [],
     company_id: comp.id
+  })
+
+  await UserSetting.create({
+    user_id: u.id,
+    notifications: false
   })
 
   const newUser = await User.findOne({
