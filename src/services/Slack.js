@@ -10,13 +10,11 @@ const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID
 const publishMessage = async (channel_id, text, blocks) => {
   try {
 
-    const result = await web.chat.postMessage({
+    return await web.chat.postMessage({
       channel: channel_id,
       text: text,
       blocks: blocks,
     });
-
-    return result;
   }
   catch (error) {
     console.error(error);

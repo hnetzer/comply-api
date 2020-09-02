@@ -49,15 +49,17 @@ const start = async () => {
 
       const email = SendGrid.createFilingPersonalization(user, company, filing, companyFiling)
       emailPersonalizations.push(email)
-
-      // await filings[i].update({ notified: true });
     }
 
     const sgResponse = await SendGrid.sendFilingNotifications(emailPersonalizations);
     console.log('SendGrid response: ', sgResponse)
 
-    // const slackResponse = await Slack.publishFilingNotifications(slackMessages);
-    // console.log('Slack response: ', slackResponse)
+    const slackResponse = await Slack.publishFilingNotifications(slackMessages);
+    console.log('Slack response: ', slackResponse)
+
+    for (let i=0; i < filings.length; i++) {
+      await filings[i].update({ notified: true })
+    }
 
   } catch (err) {
     console.error(err)
