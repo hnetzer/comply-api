@@ -68,7 +68,7 @@ const companyFiling = (sequelize, DataTypes) => {
     return null;
   }
 
-  CompanyFiling.findAllNotNotified = async ({ dueStart, dueEnd}) => {
+  CompanyFiling.findAllForNotifications = async ({ dueStart, dueEnd}) => {
     return CompanyFiling.findAll({
       where: {
         [Op.and]: [
@@ -80,7 +80,13 @@ const companyFiling = (sequelize, DataTypes) => {
       include: [{
         model: models.Company,
         include: [{
-          model: models.User
+          model: models.User,
+          include: [{
+            model: models.UserSetting,
+            as: 'settings',
+            where: { notifications: true },
+            required: true
+          }],
         }]
       }, {
         model: models.Filing,
