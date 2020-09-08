@@ -63,6 +63,8 @@ const createFiling = async (req, res, next) => {
       website: filing.website,
       description: filing.description,
       agency_id: filing.agency_id,
+      for_corp: filing.for_corp,
+      for_llc: filing.for_llc
     });
 
     const due_dates = filing.due_dates.map(f => ({ ...f, filing_id: result.id }))
@@ -97,7 +99,9 @@ const updateFiling = async (req, res, next) => {
         occurrence: filing.occurrence,
         website: filing.website,
         description: filing.description,
-        agency_id: filing.agency_id
+        agency_id: filing.agency_id,
+        for_corp: filing.for_corp,
+        for_llc: filing.for_llc
       }, {
         where: { id: filingId }
       });
