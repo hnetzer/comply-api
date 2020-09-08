@@ -3,7 +3,8 @@ const jurisdiction = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     state: DataTypes.STRING,
     type: DataTypes.STRING,
-    supported: DataTypes.BOOLEAN,
+    llc_supported: DataTypes.BOOLEAN,
+    corp_supported: DataTypes.BOOLEAN,
     disabled: DataTypes.BOOLEAN
   }, { underscored: true });
 

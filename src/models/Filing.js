@@ -18,6 +18,12 @@ const filing = (sequelize, DataTypes) => {
     },
     disabled: {
       type: DataTypes.BOOLEAN,
+    },
+    for_corp: {
+      type: DataTypes.BOOLEAN,
+    },
+    for_llc: {
+      type: DataTypes.BOOLEAN,
     }
   }, { underscored: true });
 
