@@ -17,13 +17,21 @@ const companyAgency = (sequelize, DataTypes) => {
 
 
   CompanyAgency.prototype.syncFilings = async function (year) {
-    const filings = await models.Filing.findAll({
-      where: { agency_id: this.agency_id, disabled: false }
-    })
-
     const company = await models.Company.findOne({
       where: { id: this.company_id },
       raw: true
+    })
+
+    const type = company.type.toLowerCase()
+    let filingFilters = { agency_id: this.agency_id, disabled: false }
+    if (type === 'llc') {
+      filingFilters = { ...filingFilters, for_llc: true };
+    } else if (type === 'corporation') {
+      filingFilters = { ...filingFilters, for_corp: true };
+    }
+
+    const filings = await models.Filing.findAll({
+      where: filingFilters,
     })
 
     const companyFilings = []

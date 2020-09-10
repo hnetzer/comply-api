@@ -56,6 +56,41 @@ const company = (sequelize, DataTypes) => {
     return count;
   }
 
+  Company.prototype.syncAgencies = async function(jurisdictionId) {
+    const agencies = await models.Agency.findAll({
+      where: { jurisdiction_id: jurisdictionId, disabled: false },
+      raw: true
+    })
+
+    for (let i=0; i < agencies.length; i++) {
+      const agencyId = agencies[i].id
+      await models.CompanyAgency.findOrCreate({
+        where: { company_id: this.id, agencyId: agencyId }
+      })
+    }
+
+    return await models.CompanyAgency.findAll({
+      where: { company_id: this.id },
+      include: [{
+        model: models.Agency,
+        required: true,
+        where: { jurisdiction_id: jurisdictionId }
+      }]
+    })
+  }
+
+  Company.findAllByJurisdictionType = async ({ jurisdictionId, type }) => {
+    return await Company.findAll({
+      where: { type: type },
+      include: [{
+        model: models.Jurisdiction,
+        where: { id: jurisdictionId },
+        required: true
+      }]
+    })
+  }
+
+
   return Company;
 };
 export default company;

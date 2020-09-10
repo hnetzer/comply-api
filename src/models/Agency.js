@@ -21,15 +21,6 @@ const agency = (sequelize, DataTypes) => {
     Agency.hasMany(models.CompanyAgency, { foreignKey: 'agency_id' })
   };
 
-  Agency.findAllForJurisdictionIds = ({ ids }) => {
-    return Agency.findAll({
-      where: { jurisdiction_id: { [Op.in]: ids } },
-      include: [{
-        model: models.Jurisdiction,
-      }],
-    })
-  }
-
   return Agency;
 };
 export default agency;

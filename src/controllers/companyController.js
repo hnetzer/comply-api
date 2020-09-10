@@ -136,9 +136,22 @@ const updateOffices = async (req, res, next) => {
    await CompanyJurisdiction.destroy({ where: { company_id: companyId } })
    await CompanyJurisdiction.bulkCreate(companyJurisdictions);
 
+   let jurisdictionFilter = {}
+   const companyType = company.type.toLowerCase();
+   if (companyType === 'corporation') {
+     jurisdictionFilter = { corp_supported: true };
+   } else if (companyType === 'llc') {
+     jurisdictionFilter = { llc_supported: true };
+   }
+
    // Find the agencies that this company should be registered with
    const agencies = await Agency.findAll({
-     where: { jurisdiction_id: { [Op.in]: jurisdictionIds } },
+     where: { jurisdiction_id: { [Op.in]: jurisdictionIds }, disabled: false },
+     include: [{
+       model: Jurisdiction,
+       where: jurisdictionFilter,
+       required: true
+     }],
      raw: true
    })
 
@@ -159,7 +172,6 @@ const updateOffices = async (req, res, next) => {
    return res.status(500).send()
  }
 }
-
 
 
 // Admin ONLY
