@@ -94,35 +94,14 @@ const updateCompanyFiling =  async (req, res, next) => {
   }
 
   const companyFilingId = req.params.companyFilingId
-  const { status, fields } = req.body
-  await CompanyFiling.update({
-    status: req.body.status,
-  }, {
-    where: { id: companyFilingId },
-  });
+  const { hidden, due_date } = req.body
 
-  for (let i=0; i < fields.length; i++) {
-    const field = fields[i]
-    if (field.id) {
-      await CompanyFilingField.update({
-        value: field.value
-      }, {
-        where: {
-          id: field.id,
-          company_filing_id: companyFilingId,
-          filing_field_id: field.filing_field_id
-        }
-      })
-    } else {
-      // This could be a new field that we've added
-      await CompanyFilingField.create({
-        value: field.value,
-        company_filing_id: companyFilingId,
-        filing_field_id: field.filing_field_id
-      })
-    }
+  const update = { hidden: hidden };
+  if (due_date) {
+    update.due_date = due_date;
   }
 
+  await CompanyFiling.update(update, { where: { id: companyFilingId } });
   const companyFiling = await CompanyFiling.findById(companyFilingId)
   return res.status(200).send(companyFiling)
 }
@@ -171,68 +150,6 @@ const getCompanyFilingMessages = async (req, res, next) => {
 
 
 
-// only admin uses this function right now
-const getAll = async (req, res, next) => {
-  const all = await CompanyFiling.findAll({
-    include: [{
-      model: Filing,
-      include:[{
-        model: Agency,
-        include: [{
-          model: Jurisdiction,
-        }]
-      }]
-    }, {
-      model: Company
-    }, {
-      model: CompanyFilingField,
-      as: 'fields',
-      include: [{
-        model: FilingField
-      }]
-    }],
-  });
-
-  return res.status(200).send(all)
-}
-
-// only admin can reject filings
-// NOTE: need to update this to save the MESSAGE!
-const reject = async (req, res, next) => {
-  const companyFilingId = req.params.companyFilingId
-  const userId = req.user.id //note: this is the admin user!
-
-  const update = await CompanyFiling.update(
-    { status: 'needs-follow-up' },
-    { where: { id: companyFilingId } }
-  );
-
-  const companyFiling = await CompanyFiling.findById(companyFilingId)
-
-  const { reason } = req.body
-  await CompanyFilingMessage.create({
-    company_filing_id: companyFilingId,
-    user_id: userId,
-    content: reason
-  });
-
-  return res.status(200).send(companyFiling)
-}
-
-// admin
-const updateStatus =  async (req, res, next) => {
-  const companyFilingId = req.params.companyFilingId
-
-  await CompanyFiling.update({
-    status: req.body.status,
-  }, {
-    where: { id: companyFilingId },
-  });
-
-  const companyFiling = await CompanyFiling.findById(companyFilingId)
-
-  return res.status(200).send(companyFiling)
-}
 
 export {
   getCompanyFilings,
@@ -240,9 +157,4 @@ export {
   getCompanyFiling,
   updateCompanyFiling,
   getCompanyFilingMessages,
-
-  //admin
-  getAll,
-  reject,
-  updateStatus
 }

@@ -3,8 +3,7 @@ import passport from 'passport';
 
 import {
   getAll,
-  reject,
-  updateStatus,
+  updateCompanyFiling,
   getCompanyFiling,
   getCompanyFilings,
 } from '../controllers/companyFilingsController';
@@ -51,10 +50,8 @@ router.use(passport.authenticate('jwt', { session: false }));
 router.use(adminCheck)
 
 // Routes
-router.get('/companyfilings', getAll)
 router.get('/companyfilings/:companyFilingId', getCompanyFiling)
-router.put('/companyfilings/:companyFilingId/reject', reject)
-router.put('/companyfilings/:companyFilingId', updateStatus)
+router.put('/companyfilings/:companyFilingId', updateCompanyFiling)
 
 router.get('/jurisdictions', getJurisdictions)
 router.post('/jurisdictions', createJurisdiction)
