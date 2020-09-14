@@ -14,6 +14,11 @@ const companyFiling = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       required: true,
       default: false
+    },
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      required: true,
+      default: false
     }
   }, { underscored: true });
 
