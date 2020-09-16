@@ -6,7 +6,8 @@ import Slack from '../services/Slack';
 const {
   Company,
   User,
-  UserSetting
+  UserSetting,
+  UserCompany
 } = models;
 
 const JWT_SECRET = process.env.JWT_SECRET
@@ -43,11 +44,19 @@ const createAccount = async (req, res, next) => {
     notifications: false
   })
 
+  await UserCompany.create({
+    user_id: u.id,
+    company_id: comp.id
+  })
+
   const newUser = await User.findOne({
     where: { email: user.email },
-    include: {
+    include: [{
       model: Company,
-    },
+    }, {
+      model: UserCompany,
+      as: 'companies'
+    }],
     raw: true })
 
   const channelId = process.env.SLACK_CHANNEL_ID
@@ -80,17 +89,20 @@ const login = async (req, res, next) => {
       res.status(500).send();
     }
 
-    const company = await Company.findOne({
-      where: {
-        id: user.company_id
-      }
+    const companies = await Company.findAll({
+      include: [{
+        model: User,
+        as: 'users',
+        where: { id: user.id }
+      }]
     })
 
     const token = jwt.sign(user, JWT_SECRET)
     return res.json({
       user: user,
       token: token,
-      company: company
+      company: companies[0],
+      companies: companies
     });
   });
 }
