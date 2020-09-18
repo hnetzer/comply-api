@@ -1,11 +1,12 @@
 import { Op } from 'sequelize';
 import moment from 'moment';
 import models, { sequelize } from '../models';
+import { userCanAccessCompany } from '../auth';
 
 
 const getCompanyJurisdictions = async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 

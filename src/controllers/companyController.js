@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import GoogleGeocode from '../services/GoogleGeocode'
 import models, { sequelize } from '../models';
+import { userCanAccessCompany } from '../auth';
 
 const {
   Company,
@@ -14,9 +15,13 @@ const {
 } = models;
 
 
+const checkUserForCompany = (user, companyId) => {
+  return user.companies.map(c => c.id).indexOf(companyId) === -1;
+}
+
 const getCompany = async (req, res, next) => {
   const companyId = req.params.companyId
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 

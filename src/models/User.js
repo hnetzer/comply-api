@@ -32,7 +32,7 @@ const user = (sequelize, DataTypes) => {
   }, { underscored: true });
 
   User.associate = models => {
-    User.belongsTo(models.Company, { foreignKey: 'company_id' });
+    // User.belongsTo(models.Company, { foreignKey: 'company_id' });
     User.belongsToMany(models.Company, { through: models.UserCompany, as: 'companies' });
     User.hasOne(models.UserSetting, { foreignKey: 'user_id', as: 'settings' });
   };
