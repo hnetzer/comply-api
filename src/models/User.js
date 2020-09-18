@@ -28,6 +28,9 @@ const user = (sequelize, DataTypes) => {
     },
     permissions: {
       type: DataTypes.ARRAY(DataTypes.STRING),
+    },
+    company_id: {
+      type: DataTypes.INTEGER
     }
   }, { underscored: true });
 

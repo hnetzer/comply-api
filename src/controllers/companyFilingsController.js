@@ -132,7 +132,7 @@ const updateCompanyFiling =  async (req, res, next) => {
 // This endpoint is used by BOTH customer and admin
 const getCompanyFiling =  async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId && req.user.roles.indexOf('admin') === -1) {
+  if (!userCanAccessCompany(req.user, companyId) && req.user.roles.indexOf('admin') === -1) {
     return res.status(401).send()
   }
 
