@@ -186,7 +186,8 @@ const getCompanies = async (req, res, next) => {
       include: [{
         model: Agency
       }, {
-        model: User
+        model: User,
+        as: 'users'
       }, {
         model: Office
       }]
@@ -210,7 +211,8 @@ const adminGetCompany = async (req, res, next) => {
           model: Jurisdiction
         }]
       }, {
-        model: User
+        model: User,
+        as: 'users'
       }, {
         model: Office
       }, {
