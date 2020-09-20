@@ -27,9 +27,16 @@ const start = async () => {
   console.log(`${fiveWeeks.format('YYYY-MM-DD')} to ${sixWeeks.format('YYYY-MM-DD')}`)
 
   try {
-    const filings = await CompanyFiling.findAllForNotifications({
+    const filingsBetweenDates = await CompanyFiling.findAllBetweenDates({
       dueStart: fiveWeeks.format('YYYY-MM-DD'),
       dueEnd: sixWeeks.format('YYYY-MM-DD')
+    })
+
+    // Filter out only the users that want to be notified
+    const filings = filingsBetweenDates.filter((f,i) => {
+      const companyFiling = f.get({ plain: true});
+      const { company } = companyFiling;
+      return company.users[0].settings.notifications;
     })
 
     console.log(`Found ${filings.length} where notifications need to be sent`)
