@@ -53,8 +53,6 @@ const createAccount = async (req, res, next) => {
     where: { email: user.email },
     include: [{
       model: Company,
-    }, {
-      model: UserCompany,
       as: 'companies'
     }],
     raw: true })
@@ -63,17 +61,26 @@ const createAccount = async (req, res, next) => {
   const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email}) - ${user.title} @ ${user.company}`
   Slack.publishMessage(channelId, message)
 
-  req.login(newUser, { session: false }, err => {
+  req.login(newUser, { session: false }, async (err) => {
     if (err) {
       return res.send(err)
     }
+
+    const companies = await Company.findAll({
+      include: [{
+        model: User,
+        as: 'users',
+        where: { id: newUser.id }
+      }]
+    })
 
     // now generate a signed json web token with the user object
     const token = jwt.sign(newUser, JWT_SECRET)
     return res.json({
       user: newUser,
       token: token,
-      company: comp
+      company: companies[0],
+      companies: companies
     });
   })
 }
