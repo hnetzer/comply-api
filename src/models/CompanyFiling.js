@@ -14,6 +14,11 @@ const companyFiling = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       required: true,
       default: false
+    },
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      required: true,
+      default: false
     }
   }, { underscored: true });
 
@@ -68,7 +73,7 @@ const companyFiling = (sequelize, DataTypes) => {
     return null;
   }
 
-  CompanyFiling.findAllForNotifications = async ({ dueStart, dueEnd}) => {
+  CompanyFiling.findAllBetweenDates = async ({ dueStart, dueEnd}) => {
     return CompanyFiling.findAll({
       where: {
         [Op.and]: [
@@ -84,8 +89,6 @@ const companyFiling = (sequelize, DataTypes) => {
           include: [{
             model: models.UserSetting,
             as: 'settings',
-            where: { notifications: true },
-            required: true
           }],
         }]
       }, {
