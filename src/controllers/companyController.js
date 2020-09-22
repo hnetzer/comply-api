@@ -7,6 +7,7 @@ import { userCanAccessCompany } from '../auth';
 const {
   Company,
   CompanyJurisdiction,
+  UserCompany,
   Jurisdiction,
   User,
   Office,
@@ -43,6 +44,21 @@ const getCompany = async (req, res, next) => {
   })
 
   company.agencies = agencies;
+  return res.status(200).json(company)
+}
+
+const createCompany = async (req, res, next) => {
+
+  console.log('inside create company')
+
+  const company = await Company.create(req.body)
+  await UserCompany.create({
+    company_id: company.id,
+    user_id: req.user.id
+  })
+
+  console.log('created the company successfully')
+
   return res.status(200).json(company)
 }
 
@@ -230,6 +246,7 @@ const adminGetCompany = async (req, res, next) => {
 
 export {
   getCompany,
+  createCompany,
   updateCompany,
   updateOffices,
   setWantsPremium,
