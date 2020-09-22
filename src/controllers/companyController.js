@@ -64,7 +64,7 @@ const createCompany = async (req, res, next) => {
 
 const updateCompany = async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 
@@ -100,7 +100,7 @@ const setWantsPremium = async (req, res, next) => {
 
 const updateOffices = async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
   const companyOffices = req.body.offices;
