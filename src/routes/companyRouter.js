@@ -3,6 +3,7 @@ import passport from 'passport';
 
 import {
   updateCompany,
+  createCompany,
   updateOffices,
   getCompany,
   setWantsPremium,
@@ -31,6 +32,7 @@ import {
 const router = express.Router();
 router.use(passport.authenticate('jwt', { session: false }));
 
+router.post('/', createCompany)
 router.get('/:companyId', getCompany)
 router.put('/:companyId', updateCompany);
 router.put('/:companyId/premium', setWantsPremium);

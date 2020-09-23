@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import moment from 'moment';
 import models, { sequelize } from '../models';
+import { userCanAccessCompany } from '../auth';
 
 const {
   Company,
@@ -17,7 +18,7 @@ const updateCompanyAgencies = async (req, res, next) => {
   const companyId = req.params.companyId;
   const companyAgencies = req.body;
 
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
   const company = await Company.findOne({ where: { id: companyId } });
@@ -80,7 +81,7 @@ const updateCompanyAgency = async (req, res, next) => {
   const companyId = req.params.companyId;
   const agencyId = req.params.agencyId;
 
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 
@@ -107,7 +108,7 @@ const updateCompanyAgency = async (req, res, next) => {
 const getCompanyAgencies = async (req, res, next) => {
   const companyId = req.params.companyId;
 
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 

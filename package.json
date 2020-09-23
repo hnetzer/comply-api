@@ -11,7 +11,9 @@
     "create-admin": "babel-node src/scripts/createAdmin.js",
     "sync-company-filings": "babel-node src/scripts/syncCompanyFilings.js",
     "send-filing-notifications": "babel-node src/scripts/sendCompanyFilingNotifications.js",
-    "create-user-settings": "babel-node src/scripts/createSettingsForUsers.js"
+    "create-user-settings": "babel-node src/scripts/createSettingsForUsers.js",
+    "create-user-company-mappings": "babel-node src/scripts/createUserCompanyMappings.js",
+    "create-user": "babel-node src/scripts/createUser.js"
   },
   "author": "Henry Netzer",
   "license": "ISC",

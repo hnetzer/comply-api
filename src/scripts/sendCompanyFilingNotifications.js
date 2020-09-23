@@ -36,10 +36,12 @@ const start = async () => {
     const filings = filingsBetweenDates.filter((f,i) => {
       const companyFiling = f.get({ plain: true});
       const { company } = companyFiling;
-      return company.users[0].settings.notifications;
+      return company.users.reduce((acc, user) => {
+        return acc || (user.settings && user.settings.notifications)
+      }, false)
     })
 
-    console.log(`Found ${filings.length} where notifications need to be sent`)
+    console.log(`Found ${filings.length} filings where notifications need to be sent`)
 
     const emailPersonalizations = [];
     const slackMessages = [];
@@ -47,16 +49,22 @@ const start = async () => {
     for (let i=0; i < filings.length; i++) {
       const companyFiling = filings[i].get({ plain: true});
       const { filing, due_date, company } = companyFiling;
-      const user = company.users[0];
       const agency = filing.agency;
       const jurisdiction = agency.jurisdiction;
 
-      const slack = Slack.createFilingNotification(user, company, filing, companyFiling)
-      slackMessages.push(slack)
+      for (let j=0; j < company.users.length; j++) {
+        const user = company.users[j]
+        if (user.settings.notifications) {
+          const slack = Slack.createFilingNotification(user, company, filing, companyFiling)
+          slackMessages.push(slack)
 
-      const email = SendGrid.createFilingPersonalization(user, company, filing, companyFiling)
-      emailPersonalizations.push(email)
+          const email = SendGrid.createFilingPersonalization(user, company, filing, companyFiling)
+          emailPersonalizations.push(email)
+        }
+      }
     }
+
+    console.log(`Sending ${emailPersonalizations.length} notification emails`)
 
     const sgResponse = await SendGrid.sendFilingNotifications(emailPersonalizations);
     console.log('SendGrid response: ', sgResponse)

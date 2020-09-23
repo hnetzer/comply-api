@@ -2,10 +2,12 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import GoogleGeocode from '../services/GoogleGeocode'
 import models, { sequelize } from '../models';
+import { userCanAccessCompany } from '../auth';
 
 const {
   Company,
   CompanyJurisdiction,
+  UserCompany,
   Jurisdiction,
   User,
   Office,
@@ -14,9 +16,13 @@ const {
 } = models;
 
 
+const checkUserForCompany = (user, companyId) => {
+  return user.companies.map(c => c.id).indexOf(companyId) === -1;
+}
+
 const getCompany = async (req, res, next) => {
   const companyId = req.params.companyId
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 
@@ -41,9 +47,24 @@ const getCompany = async (req, res, next) => {
   return res.status(200).json(company)
 }
 
+const createCompany = async (req, res, next) => {
+
+  console.log('inside create company')
+
+  const company = await Company.create(req.body)
+  await UserCompany.create({
+    company_id: company.id,
+    user_id: req.user.id
+  })
+
+  console.log('created the company successfully')
+
+  return res.status(200).json(company)
+}
+
 const updateCompany = async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
 
@@ -79,7 +100,7 @@ const setWantsPremium = async (req, res, next) => {
 
 const updateOffices = async (req, res, next) => {
   const companyId = req.params.companyId;
-  if (req.user.company_id != companyId) {
+  if (!userCanAccessCompany(req.user, companyId)) {
     return res.status(401).send()
   }
   const companyOffices = req.body.offices;
@@ -181,7 +202,8 @@ const getCompanies = async (req, res, next) => {
       include: [{
         model: Agency
       }, {
-        model: User
+        model: User,
+        as: 'users'
       }, {
         model: Office
       }]
@@ -205,7 +227,8 @@ const adminGetCompany = async (req, res, next) => {
           model: Jurisdiction
         }]
       }, {
-        model: User
+        model: User,
+        as: 'users'
       }, {
         model: Office
       }, {
@@ -223,6 +246,7 @@ const adminGetCompany = async (req, res, next) => {
 
 export {
   getCompany,
+  createCompany,
   updateCompany,
   updateOffices,
   setWantsPremium,

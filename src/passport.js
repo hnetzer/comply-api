@@ -7,7 +7,7 @@ const JWTStrategy = PassportJWT.Strategy;
 const ExtractJWT = PassportJWT.ExtractJwt;
 
 import models from './models';
-const { User, UserSetting } = models;
+const { User, UserSetting, Company } = models;
 
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -20,6 +20,9 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
         include: [{
           model: UserSetting,
           as: 'settings'
+        }, {
+          model: Company,
+          as: 'companies'
         }]
       })
       if (!user) {
@@ -48,8 +51,10 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
       include: [{
         model: UserSetting,
         as: 'settings'
-      }],
-      raw: true
+      }, {
+        model: Company,
+        as: 'companies'
+      }]
     });
 
     // TODO: Do we need to check anything here?

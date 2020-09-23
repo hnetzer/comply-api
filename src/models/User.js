@@ -28,11 +28,15 @@ const user = (sequelize, DataTypes) => {
     },
     permissions: {
       type: DataTypes.ARRAY(DataTypes.STRING),
+    },
+    company_id: {
+      type: DataTypes.INTEGER
     }
   }, { underscored: true });
 
   User.associate = models => {
-    User.belongsTo(models.Company, { foreignKey: 'company_id' });
+    // User.belongsTo(models.Company, { foreignKey: 'company_id' });
+    User.belongsToMany(models.Company, { through: models.UserCompany, as: 'companies' });
     User.hasOne(models.UserSetting, { foreignKey: 'user_id', as: 'settings' });
   };
 

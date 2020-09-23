@@ -86,6 +86,7 @@ const companyFiling = (sequelize, DataTypes) => {
         model: models.Company,
         include: [{
           model: models.User,
+          as: 'users',
           include: [{
             model: models.UserSetting,
             as: 'settings',
