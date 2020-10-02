@@ -13,7 +13,7 @@ const {
 const start = async () => {
 
   let start = moment().set({ year: 2020, month: 0, date: 1 })
-  let end = moment().set({ year: 2020, month: 11, date: 31 })
+  let end = moment().set({ year: 2022, month: 11, date: 31 })
 
   console.log(`Starting company filing sync (${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')})`)
 

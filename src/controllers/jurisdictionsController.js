@@ -71,8 +71,12 @@ const syncAllForSupportedJurisdiction = async (jurisdiction, type) => {
 
     for (let j=0; j < companyAgencies.length; j++) {
       const companyAgency = companyAgencies[j]
-      const count = await companyAgency.syncFilings(moment().year())
-      console.log(`${count} filings created for company ${company.id}`)
+
+      // Create all of the company filings for 2020, 2021, 2022
+      for (let y=2020; y <= 2022; y++) {
+        const count = await companyAgency.syncFilings(y)
+        console.log(`${count} filings created for company ${company.id}`)
+      }
     }
   }
 }
