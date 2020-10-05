@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import 'dotenv/config';
+import { Op } from 'sequelize';
 import models, { sequelize } from '../models';
 import moment from 'moment'
 
@@ -19,7 +20,13 @@ const start = async () => {
 
   try {
     const companies = await Company.findAll({
-      where: { onboarded: true, type: 'Corporation' }
+      where: {
+        onboarded: true,
+        [Op.or]: [
+          { type: 'Corporation' },
+          { type: 'LLC' }
+        ]
+      }
     })
 
     let count = 0;
