@@ -72,7 +72,7 @@ const user = (sequelize, DataTypes) => {
   User.beforeUpdate(async (user, options) => {
     try {
       if (!isNullOrEmpty(user.password)) {
-        user.password = await bcrypt.hash()
+        user.password = await bcrypt.hash(user.password, 10)
       } else {
         delete user.password;
       }
@@ -88,6 +88,13 @@ const user = (sequelize, DataTypes) => {
 
   User.prototype.checkPassword = function (password) {
     return bcrypt.compare(password, this.password);
+  }
+
+  User.prototype.toJSON =  function () {
+    var values = Object.assign({}, this.get());
+
+    delete values.password;
+    return values;
   }
 
   return User;

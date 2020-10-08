@@ -24,7 +24,7 @@ const createUser = async (req, res, next) => {
 
   const existingUser = await User.findOne({ where: { email: user.email } });
   if (existingUser) {
-    if (existingUser.password.length > 0) {
+    if (existingUser.password && existingUser.password.length > 0) {
       return res.status(400).json({
         message: 'An account with that email already exists'
       })
@@ -49,10 +49,41 @@ const createUser = async (req, res, next) => {
   return res.status(200).json(newUser)
 }
 
-const updateUser = async (req, res, next) => {
+const signup = async (req, res, next) => {
   const userId = req.params.userId
-  const u = req.body
-  const user = User.findOne({ where: { id: userId, email: u.email }})
+  const update = req.body
+  const user = await User.findOne({ where: { id: userId } })
+
+  if (!user) {
+    return res.status(400).json({ message: 'User not found' })
+  }
+  if (user.password) {
+    return res.status(400).json({ message: 'This account has already been setup' })
+  }
+
+  const company = await Company.create({ name: '' })
+
+  await user.update({
+    first_name: update.first_name,
+    last_name: update.last_name,
+    password: update.password,
+    company_id: company.id,
+  });
+
+  await UserCompany.create({
+    user_id: userId,
+    company_id: company.id
+  })
+
+  const updated = await User.findOne({
+    where: { id: userId },
+    include: [{
+      model: Company,
+      as: 'companies'
+    }]
+  })
+
+  return res.status(200).json(updated)
 }
 
 const login = async (req, res, next) => {
@@ -86,6 +117,6 @@ const login = async (req, res, next) => {
 
 export {
   createUser,
-  updateUser,
+  signup,
   login
 }
