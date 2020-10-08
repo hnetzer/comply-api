@@ -1,4 +1,6 @@
+import models from '../models';
 import bcrypt from 'bcrypt';
+import { emailIsValid, isNullOrEmpty } from '../utils'
 
 const user = (sequelize, DataTypes) => {
   const User = sequelize.define('user', {
@@ -20,8 +22,7 @@ const user = (sequelize, DataTypes) => {
       unique: true,
     },
     password: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     roles: {
       type: DataTypes.ARRAY(DataTypes.STRING),
@@ -40,14 +41,49 @@ const user = (sequelize, DataTypes) => {
     User.hasOne(models.UserSetting, { foreignKey: 'user_id', as: 'settings' });
   };
 
-  User.beforeCreate((user, options) => {
-    return bcrypt.hash(user.password, 10)
-      .then(hash => {
-        user.password = hash;
-      })
-      .catch(err => {
-        throw new Error();
-      });
+  User.beforeCreate(async (user, options) => {
+    try {
+      if (isNullOrEmpty(user.email ) || !emailIsValid(user.email)) {
+        throw new Error("A valid email is required for all users")
+        return;
+      }
+
+      if (!isNullOrEmpty(user.password)) {
+        user.password = await bcrypt.hash()
+      } else {
+        delete user.password;
+      }
+
+      if (isNullOrEmpty(user.first_name)) { delete user.first_name };
+      if (isNullOrEmpty(user.last_name)) { delete user.last_name };
+      if (isNullOrEmpty(user.title)) { delete user.title };
+    } catch (err) {
+      throw new Error(err);
+    }
+  });
+
+  User.afterCreate(async (user, option) => {
+    return models.UserSetting.create({
+      user_id: user.id,
+      notifications: false
+    })
+  })
+
+  User.beforeUpdate(async (user, options) => {
+    try {
+      if (!isNullOrEmpty(user.password)) {
+        user.password = await bcrypt.hash()
+      } else {
+        delete user.password;
+      }
+
+      if (isNullOrEmpty(user.first_name)) { delete user.first_name };
+      if (isNullOrEmpty(user.last_name)) { delete user.last_name };
+      if (isNullOrEmpty(user.title)) { delete user.title };
+      if (isNullOrEmpty(user.email)) { delete user.email };
+    } catch (err) {
+      throw new Error(err);
+    }
   });
 
   User.prototype.checkPassword = function (password) {

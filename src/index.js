@@ -10,7 +10,7 @@ import models, { sequelize } from './models';
 
 // Controllers
 import { getFiling } from './controllers/filingController';
-import { createAccount, login } from './controllers/accountController';
+import { createUser, updateUser, login } from './controllers/accountController';
 import { getAgenciesForCompany } from './controllers/agenciesController';
 import { sendFeedback } from './controllers/feedbackController';
 
@@ -29,7 +29,8 @@ app.use(passport.initialize());
 app.use(cors());
 
 // Routes
-app.post('/account', createAccount);
+app.post('/users', createUser);
+app.put('/users/:userId', updateUser)
 app.post('/login', passport.authenticate('local', { session: false }), login);
 app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgenciesForCompany);
 app.post('/feedback', passport.authenticate('jwt', { session: false }), sendFeedback);
