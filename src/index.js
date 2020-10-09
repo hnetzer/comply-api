@@ -36,6 +36,19 @@ app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgenci
 app.post('/feedback', passport.authenticate('jwt', { session: false }), sendFeedback);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
 
+
+app.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] })
+);
+
+// I think this should probably return our JWT token?
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => { res.redirect('/'); }
+);
+
+
 // Set other routers
 FilingsRouter(app);
 UsersRouter(app);

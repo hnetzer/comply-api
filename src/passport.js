@@ -5,6 +5,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const PassportJWT = require('passport-jwt');
 const JWTStrategy = PassportJWT.Strategy;
 const ExtractJWT = PassportJWT.ExtractJwt;
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;;
 
 import models from './models';
 const { User, UserSetting, Company } = models;
@@ -64,5 +65,49 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
   }
 });
 
+
+const googleSettings = {
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "http://www.example.com/auth/google/callback"
+}
+let googleStrategy = new GoogleStrategy(googleSettings, async (accessToken, refreshToken, profile, done) => {
+  console.log("GOOGLE BASED OAUTH VALIDATION GETTING CALLED")
+  let user;
+  try {
+    user = await User.findOne({
+      where: { email: profile.email },
+      include: [
+        { model: UserSetting, as: 'settings'},
+        { model: Company, as: 'companies' },
+      ]
+    });
+
+    if (!user) {
+      await User.create({
+        // googleId: profile.id,
+        email: profile.email,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+      })
+
+      user = await User.findOne({
+        where: { email: profile.email },
+        include: [
+          { model: UserSetting, as: 'settings'},
+          { model: Company, as: 'companies' },
+        ]
+      });
+
+    }
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+})
+
+
+
 passport.use(localStrategy);
 passport.use(jwtStrategy);
+passport.use(googleStrategy);
