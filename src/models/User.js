@@ -30,6 +30,9 @@ const user = (sequelize, DataTypes) => {
     permissions: {
       type: DataTypes.ARRAY(DataTypes.STRING),
     },
+    google_id: {
+      type: DataTypes.STRING
+    },
     company_id: {
       type: DataTypes.INTEGER
     }
@@ -63,10 +66,6 @@ const user = (sequelize, DataTypes) => {
   });
 
   User.afterCreate(async (user, option) => {
-    return models.UserSetting.create({
-      user_id: user.id,
-      notifications: false
-    })
   })
 
   User.beforeUpdate(async (user, options) => {

@@ -63,17 +63,16 @@ const signup = async (req, res, next) => {
 
   const company = await Company.create({ name: '' })
 
+  await UserSetting.create({ user_id: user.id, notifications: false })
+  await UserCompany.create({ user_id: user.id, company_id: company.id })
+
   await user.update({
     first_name: update.first_name,
     last_name: update.last_name,
     password: update.password,
-    company_id: company.id,
+    company_id: company.id
   });
 
-  await UserCompany.create({
-    user_id: userId,
-    company_id: company.id
-  })
 
   const updated = await User.findOne({
     where: { id: userId },
@@ -116,22 +115,9 @@ const login = async (req, res, next) => {
 }
 
 
-const googleLogin = async (req, res, next) => {
-  const user = req.user
-  if (!user) {
-    return res.status(401).send();
-  }
-
-  console.log('GOOGLE LOGIN!')
-  console.log(req.body)
-  console.log(user)
-
-  return res.status(401).send();
-}
 
 export {
   createUser,
   signup,
-  login,
-  googleLogin
+  login
 }

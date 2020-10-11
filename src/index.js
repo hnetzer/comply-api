@@ -32,7 +32,7 @@ app.use(cors());
 app.post('/users', createUser);
 app.put('/users/:userId', signup);
 
-app.post('/login/google', passport.authenticate('google-id-token'), googleLogin);
+app.post('/login/google', passport.authenticate('google-id-token', { session: false }), login);
 app.post('/login', passport.authenticate('local', { session: false }), login);
 app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgenciesForCompany);
 app.post('/feedback', passport.authenticate('jwt', { session: false }), sendFeedback);
