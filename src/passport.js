@@ -5,27 +5,20 @@ const LocalStrategy = require('passport-local').Strategy;
 const PassportJWT = require('passport-jwt');
 const JWTStrategy = PassportJWT.Strategy;
 const ExtractJWT = PassportJWT.ExtractJwt;
-const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;;
+const GoogleTokenStrategy = require('passport-google-id-token');
+
 
 import models from './models';
 const { User, UserSetting, Company } = models;
 
 const JWT_SECRET = process.env.JWT_SECRET
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 
 // Setup Passport
 let localStrategy = new LocalStrategy(async (username, password, done) => {
   let user;
     try {
-      user = await User.findOne({
-        where: { email: username },
-        include: [{
-          model: UserSetting,
-          as: 'settings'
-        }, {
-          model: Company,
-          as: 'companies'
-        }]
-      })
+      user = await User.findOne({ where: { email: username } })
       if (!user) {
         return done(null, false, { message: 'No user by that email'});
       }
@@ -45,20 +38,11 @@ let localStrategy = new LocalStrategy(async (username, password, done) => {
 
 const settings = { jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(), secretOrKey: JWT_SECRET }
 let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
-  let user;
   try {
-    user = await User.findOne({
-      where: { id: jwtPayload.id },
-      include: [{
-        model: UserSetting,
-        as: 'settings'
-      }, {
-        model: Company,
-        as: 'companies'
-      }]
-    });
-
-    // TODO: Do we need to check anything here?
+    const user = await User.findOne({ where: { id: jwtPayload.id } });
+    if (!user) {
+      return done(null, false, { message: 'Token error'});
+    }
     return done(null, user);
   } catch (err) {
     return done(err);
@@ -66,46 +50,19 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
 });
 
 
-const googleSettings = {
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://www.example.com/auth/google/callback"
-}
-let googleStrategy = new GoogleStrategy(googleSettings, async (accessToken, refreshToken, profile, done) => {
-  console.log("GOOGLE BASED OAUTH VALIDATION GETTING CALLED")
-  let user;
-  try {
-    user = await User.findOne({
-      where: { email: profile.email },
-      include: [
-        { model: UserSetting, as: 'settings'},
-        { model: Company, as: 'companies' },
-      ]
-    });
-
-    if (!user) {
-      await User.create({
-        // googleId: profile.id,
-        email: profile.email,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-      })
-
-      user = await User.findOne({
-        where: { email: profile.email },
-        include: [
-          { model: UserSetting, as: 'settings'},
-          { model: Company, as: 'companies' },
-        ]
-      });
-
+const googleSettings = { clientID: GOOGLE_CLIENT_ID }
+const googleStrategy = new GoogleTokenStrategy(googleSettings, async (parsedToken, googleId, done) => {
+    try {
+      console.log('parsedToken', parsedToken)
+      const user = await User.findOne({ google_id: googleId })
+      if (!user) {
+        return done(null, false, { message: 'No user with that Google ID'});
+      }
+    } catch (err) {
+      return done(err);
     }
-    return done(null, user);
-  } catch (err) {
-    return done(err);
   }
-})
-
+)
 
 
 passport.use(localStrategy);

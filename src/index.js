@@ -10,7 +10,7 @@ import models, { sequelize } from './models';
 
 // Controllers
 import { getFiling } from './controllers/filingController';
-import { createUser, signup, login } from './controllers/accountController';
+import { createUser, signup, login, googleLogin } from './controllers/accountController';
 import { getAgenciesForCompany } from './controllers/agenciesController';
 import { sendFeedback } from './controllers/feedbackController';
 
@@ -31,22 +31,13 @@ app.use(cors());
 // Routes
 app.post('/users', createUser);
 app.put('/users/:userId', signup);
+
+app.post('/login/google', passport.authenticate('google-id-token'), googleLogin);
 app.post('/login', passport.authenticate('local', { session: false }), login);
 app.get('/agencies', passport.authenticate('jwt', { session: false }), getAgenciesForCompany);
 app.post('/feedback', passport.authenticate('jwt', { session: false }), sendFeedback);
 app.get('/status', (req, res) => res.json({ status: "we good" }));
 
-
-app.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] })
-);
-
-// I think this should probably return our JWT token?
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => { res.redirect('/'); }
-);
 
 
 // Set other routers

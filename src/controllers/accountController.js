@@ -115,8 +115,23 @@ const login = async (req, res, next) => {
   });
 }
 
+
+const googleLogin = async (req, res, next) => {
+  const user = req.user
+  if (!user) {
+    return res.status(401).send();
+  }
+
+  console.log('GOOGLE LOGIN!')
+  console.log(req.body)
+  console.log(user)
+
+  return res.status(401).send();
+}
+
 export {
   createUser,
   signup,
-  login
+  login,
+  googleLogin
 }
