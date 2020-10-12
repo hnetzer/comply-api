@@ -13,8 +13,8 @@ const {
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-const createUser = async (req, res, next) => {
-  const user = req.body;
+const createAccount = async (req, res, next) => {
+  const user = req.user // When
 
   if (isNullOrEmpty(user.email)) {
     return res.status(400).json({
@@ -22,67 +22,63 @@ const createUser = async (req, res, next) => {
     })
   }
 
-  const existingUser = await User.findOne({ where: { email: user.email } });
-  if (existingUser) {
-    if (existingUser.password && existingUser.password.length > 0) {
-      return res.status(400).json({
-        message: 'An account with that email already exists'
-      })
-    }
-
-    // User has not completed the signup flow yet
-    if (!existingUser.password) {
-      return res.status(200).json(existingUser)
-    }
+  const count = await User.count({ where: { email: user.email } });
+  if (count > 0) {
+    return res.status(400).json({
+      message: 'An account with that email already exists'
+    })
   }
 
-  const newUser = await User.create({
-    ...user,
-    roles: ['client'],
-    permission: []
-  })
+  try {
+    const newUser = await User.create({
+      email: user.email,
+      password: user.password,
+      name: user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      google_id: user.google_id
+    });
 
-  // const channelId = process.env.SLACK_CHANNEL_ID
-  // const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email}) - ${user.title} @ ${user.company}`
-  // Slack.publishMessage(channelId, message)
+    const company = await models.Company.create({ name: '' })
 
-  return res.status(200).json(newUser)
-}
+    await models.UserSetting.create({ user_id: newUser.id, notifications: false })
+    await models.UserCompany.create({ user_id: newUser.id, company_id: company.id })
+    await newUser.update({ company_id: company.id })
 
-const signup = async (req, res, next) => {
-  const userId = req.params.userId
-  const update = req.body
-  const user = await User.findOne({ where: { id: userId } })
+    const rawUser = newUser.get({ plain: true })
 
-  if (!user) {
-    return res.status(400).json({ message: 'User not found' })
+
+    // const channelId = process.env.SLACK_CHANNEL_ID
+    // const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email}) - ${user.title} @ ${user.company}`
+    // Slack.publishMessage(channelId, message)
+
+    return req.login(rawUser, { session: false }, async (err) => {
+       if (err) {
+         return res.send(err)
+       }
+
+       const companies = await Company.findAll({
+         include: [{
+           model: User,
+           as: 'users',
+           where: { id: rawUser.id }
+         }]
+       })
+
+       // now generate a signed json web token with the user object
+       const token = jwt.sign(rawUser, JWT_SECRET)
+       return res.json({
+         user: rawUser,
+         token: token,
+         company: companies[0],
+         companies: companies
+       });
+     })
+
+  } catch (err) {
+    console.log(err)
+    return res.send(err)
   }
-  if (user.password) {
-    return res.status(400).json({ message: 'This account has already been setup' })
-  }
-
-  const company = await Company.create({ name: '' })
-
-  await UserSetting.create({ user_id: user.id, notifications: false })
-  await UserCompany.create({ user_id: user.id, company_id: company.id })
-
-  await user.update({
-    first_name: update.first_name,
-    last_name: update.last_name,
-    password: update.password,
-    company_id: company.id
-  });
-
-
-  const updated = await User.findOne({
-    where: { id: userId },
-    include: [{
-      model: Company,
-      as: 'companies'
-    }]
-  })
-
-  return res.status(200).json(updated)
 }
 
 const login = async (req, res, next) => {
@@ -115,9 +111,7 @@ const login = async (req, res, next) => {
 }
 
 
-
 export {
-  createUser,
-  signup,
+  createAccount,
   login
 }

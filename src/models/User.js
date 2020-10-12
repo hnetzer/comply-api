@@ -46,30 +46,11 @@ const user = (sequelize, DataTypes) => {
 
   User.beforeCreate(async (user, options) => {
     try {
-      if (isNullOrEmpty(user.email ) || !emailIsValid(user.email)) {
+      if (isNullOrEmpty(user.email) || !emailIsValid(user.email)) {
         throw new Error("A valid email is required for all users")
         return;
       }
 
-      if (!isNullOrEmpty(user.password)) {
-        user.password = await bcrypt.hash()
-      } else {
-        delete user.password;
-      }
-
-      if (isNullOrEmpty(user.first_name)) { delete user.first_name };
-      if (isNullOrEmpty(user.last_name)) { delete user.last_name };
-      if (isNullOrEmpty(user.title)) { delete user.title };
-    } catch (err) {
-      throw new Error(err);
-    }
-  });
-
-  User.afterCreate(async (user, option) => {
-  })
-
-  User.beforeUpdate(async (user, options) => {
-    try {
       if (!isNullOrEmpty(user.password)) {
         user.password = await bcrypt.hash(user.password, 10)
       } else {
@@ -79,11 +60,13 @@ const user = (sequelize, DataTypes) => {
       if (isNullOrEmpty(user.first_name)) { delete user.first_name };
       if (isNullOrEmpty(user.last_name)) { delete user.last_name };
       if (isNullOrEmpty(user.title)) { delete user.title };
-      if (isNullOrEmpty(user.email)) { delete user.email };
+      if (isNullOrEmpty(user.name)) { delete user.name };
     } catch (err) {
+      console.log(err)
       throw new Error(err);
     }
   });
+
 
   User.prototype.checkPassword = function (password) {
     return bcrypt.compare(password, this.password);

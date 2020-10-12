@@ -56,25 +56,34 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
 
 
 const googleSettings = { clientID: GOOGLE_CLIENT_ID }
-const googleStrategy = new GoogleTokenStrategy(googleSettings, async (parsedToken, googleId, done) => {
+const googleSignupStrategy = new GoogleTokenStrategy(googleSettings, async (parsedToken, googleId, done) => {
     try {
       const { payload } = parsedToken;
-      const [user, created] = await User.findOrCreate({
-        where: { email: payload.email },
-        defaults: {
-          email: payload.email,
-          name: payload.name,
-          first_name: payload.given_name,
-          last_name: payload.family_name,
-          google_id: googleId
-        }
+      const user = {
+        email: payload.email,
+        name: payload.name,
+        first_name: payload.given_name,
+        last_name: payload.family_name,
+        google_id: googleId
+      }
+
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  }
+)
+
+const googleLoginStrategy = new GoogleTokenStrategy(googleSettings, async (parsedToken, googleId, done) => {
+    try {
+      const { payload } = parsedToken;
+      const user = await User.findOne({
+        where: { email: payload.email, google_id: googleId }
       });
 
-      const company = await models.Company.create({ name: '' })
-
-      await models.UserSetting.create({ user_id: user.id, notifications: false })
-      await models.UserCompany.create({ user_id: user.id, company_id: company.id })
-      await user.update({ company_id: company.id})
+      if (!user) {
+        return done(null, false, { message: 'User not found with that Google account'});
+      }
 
       console.log('Successful login from', payload.email)
       return done(null, user.get({ plain: true }));
@@ -95,4 +104,5 @@ passport.deserializeUser(function(user, done) {
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);
-passport.use(googleStrategy);
+passport.use('google-signup', googleSignupStrategy);
+passport.use('google-login', googleLoginStrategy);
