@@ -1,5 +1,6 @@
 import passport from 'passport';
 import bcrypt from 'bcrypt';
+import { Op } from 'sequelize';
 
 const LocalStrategy = require('passport-local').Strategy;
 const PassportJWT = require('passport-jwt');
@@ -16,9 +17,9 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 let localStrategy = new LocalStrategy(async (username, password, done) => {
   let user;
     try {
-      user = await User.findOne({ where: { email: username } })
+      user = await User.findOne({ where: { email: username, password: { [Op.ne]: null } } })
       if (!user) {
-        return done(null, false, { message: 'No user by that email'});
+        return done(null, false, { message: 'User not found with those credentials' });
       }
     } catch (e) {
       return done(e);
@@ -46,7 +47,7 @@ let jwtStrategy = new JWTStrategy(settings, async (jwtPayload, done) => {
     });
 
     if (!user) {
-      return done(null, false, { message: 'Token error'});
+      return done(null, false, { message: 'Token error' });
     }
     return done(null, user);
   } catch (err) {
