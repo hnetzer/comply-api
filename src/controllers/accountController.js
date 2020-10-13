@@ -48,9 +48,9 @@ const createAccount = async (req, res, next) => {
     const rawUser = newUser.get({ plain: true })
 
 
-    // const channelId = process.env.SLACK_CHANNEL_ID
-    // const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email}) - ${user.title} @ ${user.company}`
-    // Slack.publishMessage(channelId, message)
+    const channelId = process.env.SLACK_CHANNEL_ID
+    const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email})`
+    Slack.publishMessage(channelId, message)
 
     return req.login(rawUser, { session: false }, async (err) => {
        if (err) {
@@ -79,6 +79,23 @@ const createAccount = async (req, res, next) => {
     console.log(err)
     return res.send(err)
   }
+}
+
+const checkEmail = async (req, res, next) => {
+  const email = req.params.email;
+
+  const count = await User.count({ where: { email: email } });
+  if (count > 0) {
+    return res.status(400).json({
+      message: 'An account with that email already exists'
+    })
+  }
+
+  const channelId = process.env.SLACK_CHANNEL_ID
+  const message = `${email} started the signup flow :pray:`
+  Slack.publishMessage(channelId, message)
+
+  return res.status(200).send()
 }
 
 const login = async (req, res, next) => {
@@ -113,5 +130,6 @@ const login = async (req, res, next) => {
 
 export {
   createAccount,
-  login
+  login,
+  checkEmail
 }
