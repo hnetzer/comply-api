@@ -1,6 +1,7 @@
 import models, { sequelize } from '../models';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import { emailIsValid, isNullOrEmpty } from '../utils'
 import Slack from '../services/Slack';
 
 const {
@@ -12,10 +13,15 @@ const {
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-// TODO: Move JWT secret to ENV variable
 const createAccount = async (req, res, next) => {
+  const user = req.user // When
 
-  const user = req.body;
+  if (isNullOrEmpty(user.email)) {
+    return res.status(400).json({
+      message: 'An email address is required for all users'
+    })
+  }
+
   const count = await User.count({ where: { email: user.email } });
   if (count > 0) {
     return res.status(400).json({
@@ -23,66 +29,73 @@ const createAccount = async (req, res, next) => {
     })
   }
 
-  const comp = await Company.create({
-    name: user.company,
-  });
+  try {
+    const newUser = await User.create({
+      email: user.email,
+      password: user.password,
+      name: user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      google_id: user.google_id
+    });
 
-  // TODO: Add validation here
-  const u = await User.create({
-    first_name: user.first_name,
-    last_name: user.last_name,
-    title: user.title,
-    email: user.email,
-    password: user.password,
-    roles: ['client'],
-    permission: [],
-    company_id: comp.id
-  })
+    const company = await models.Company.create({ name: '' })
 
-  await UserSetting.create({
-    user_id: u.id,
-    notifications: false
-  })
+    await models.UserSetting.create({ user_id: newUser.id, notifications: false })
+    await models.UserCompany.create({ user_id: newUser.id, company_id: company.id })
+    await newUser.update({ company_id: company.id })
 
-  await UserCompany.create({
-    user_id: u.id,
-    company_id: comp.id
-  })
+    const rawUser = newUser.get({ plain: true })
 
-  const newUser = await User.findOne({
-    where: { email: user.email },
-    include: [{
-      model: Company,
-      as: 'companies'
-    }],
-    raw: true })
+
+    const channelId = process.env.SLACK_CHANNEL_ID
+    const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email})`
+    Slack.publishMessage(channelId, message)
+
+    return req.login(rawUser, { session: false }, async (err) => {
+       if (err) {
+         return res.send(err)
+       }
+
+       const companies = await Company.findAll({
+         include: [{
+           model: User,
+           as: 'users',
+           where: { id: rawUser.id }
+         }]
+       })
+
+       // now generate a signed json web token with the user object
+       const token = jwt.sign(rawUser, JWT_SECRET)
+       return res.json({
+         user: rawUser,
+         token: token,
+         company: companies[0],
+         companies: companies
+       });
+     })
+
+  } catch (err) {
+    console.log(err)
+    return res.send(err)
+  }
+}
+
+const checkEmail = async (req, res, next) => {
+  const email = req.params.email;
+
+  const count = await User.count({ where: { email: email } });
+  if (count > 0) {
+    return res.status(400).json({
+      message: 'An account with that email already exists'
+    })
+  }
 
   const channelId = process.env.SLACK_CHANNEL_ID
-  const message = `New signup :tada: ${user.first_name} ${user.last_name} (${user.email}) - ${user.title} @ ${user.company}`
+  const message = `${email} started the signup flow :pray:`
   Slack.publishMessage(channelId, message)
 
-  req.login(newUser, { session: false }, async (err) => {
-    if (err) {
-      return res.send(err)
-    }
-
-    const companies = await Company.findAll({
-      include: [{
-        model: User,
-        as: 'users',
-        where: { id: newUser.id }
-      }]
-    })
-
-    // now generate a signed json web token with the user object
-    const token = jwt.sign(newUser, JWT_SECRET)
-    return res.json({
-      user: newUser,
-      token: token,
-      company: companies[0],
-      companies: companies
-    });
-  })
+  return res.status(200).send()
 }
 
 const login = async (req, res, next) => {
@@ -114,7 +127,9 @@ const login = async (req, res, next) => {
   });
 }
 
+
 export {
   createAccount,
-  login
+  login,
+  checkEmail
 }
